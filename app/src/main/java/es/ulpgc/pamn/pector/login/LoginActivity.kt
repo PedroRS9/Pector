@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector
+package es.ulpgc.pamn.pector.login
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -12,7 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 
-class MainActivity : ComponentActivity() {
+class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
