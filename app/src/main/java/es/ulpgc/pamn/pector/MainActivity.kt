@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import com.google.firebase.FirebaseApp
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
 import es.ulpgc.pamn.pector.signup.SignupScreen

@@ -11,8 +11,8 @@ import es.ulpgc.pamn.pector.signup.SignupScreen
 fun AppNavigation() {
     val navController = rememberNavController()
     NavHost(navController = navController, startDestination = AppScreens.SignupScreen.route){
-        composable(route = AppScreens.SignupScreen.route){
-            SignupScreen(navController)
+        composable(route = AppScreens.SignupScreen.route){ backStackEntry ->
+            SignupScreen(navController, backStackEntry)
         }
     }
 }

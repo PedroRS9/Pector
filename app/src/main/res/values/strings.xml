@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Pector</string>
+    <string name="type_password">Introduce contraseña</string>
+    <string name="type_user">Introduce usuario</string>
+    <string name="type_email">Introduce email</string>
+    <string name="accept_tos">Aceptar términos y condiciones</string>
+    <string name="button_signup">Registrarse</string>
+    <string name="email_invalid_error">Por favor, introduce un email válido.</string>
+    <string name="password_invalid_error">La contraseña debe tener mínimo 6 caracteres.</string>
+    <string name="username_invalid_error">Username inválido. Debe tener entre 3 y 30 caracteres\n y sólo contener letras, números, puntos, guiones\n y guiones bajos</string>
 </resources>

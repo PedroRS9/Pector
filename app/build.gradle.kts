@@ -59,7 +59,7 @@ dependencies {
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
-    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.material3:material3:1.1.2")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.10.0")
     testImplementation("junit:junit:4.13.2")
@@ -70,6 +70,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.navigation:navigation-compose:2.7.5")
+    implementation("androidx.compose.runtime:runtime-livedata:1.5.4")
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
 
     // Import the Firebase BoM
     implementation(platform("com.google.firebase:firebase-bom:32.5.0"))
