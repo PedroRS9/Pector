@@ -8,4 +8,9 @@
     <string name="email_invalid_error">Por favor, introduce un email válido.</string>
     <string name="password_invalid_error">La contraseña debe tener mínimo 6 caracteres.</string>
     <string name="username_invalid_error">Username inválido. Debe tener entre 3 y 30 caracteres\n y sólo contener letras, números, puntos, guiones\n y guiones bajos</string>
+
+    <string name="button_signin">Iniciar Sesión</string>
+    <string name="forgot_password_text">¿Has olvidado tu contraseña?</string>
+    <string name="no_acc_text">¿Aún no tienes cuenta?</string>
+
 </resources>

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
@@ -32,9 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import es.ulpgc.pamn.pector.ui.theme.DarkViolet
 
 @Composable
@@ -154,4 +160,22 @@ fun LabelledCheckbox(
         )
         Text(label, color = labelColor)
     }
+}
+
+@Composable
+fun PectorClickableText(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    color: Color = Color.White,
+) {
+    ClickableText(
+        text = AnnotatedString(text),
+        onClick = { onClick() },
+        modifier = modifier,
+        style = TextStyle(
+            color = color,
+            fontSize = 16.sp
+        )
+    )
 }
