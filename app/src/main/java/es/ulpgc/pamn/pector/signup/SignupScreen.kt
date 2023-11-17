@@ -43,6 +43,7 @@ import es.ulpgc.pamn.pector.components.PectorButton
 import es.ulpgc.pamn.pector.components.PectorCheckbox
 import es.ulpgc.pamn.pector.components.PectorTextField
 import es.ulpgc.pamn.pector.extensions.pectorBackground
+import es.ulpgc.pamn.pector.navigation.AppScreens
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -51,16 +52,13 @@ fun SignupScreen(navController: NavController, backStackEntry: NavBackStackEntry
     val signupState by viewModel.signupState.observeAsState()
 
     Column{
-
         BodyContent(
             navController = navController,
             onSignup = { username, email, password -> viewModel.onSignup(username,email,password) },
             clearErrors = { viewModel.clearError() },
             signupState = signupState
         )
-
     }
-
 }
 
 @Composable
@@ -170,7 +168,7 @@ fun BodyContent(navController: NavController,
         }
         when(signupState) {
             is Result.Success -> {
-                 /* TODO: volver a la pantalla de login */
+                navController.navigate(route = AppScreens.LoginScreen.route)
             }
             is Result.Error -> {
                 errorMessage = signupState.exception.message ?: ""
