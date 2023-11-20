@@ -12,5 +12,8 @@
     <string name="button_signin">Iniciar Sesión</string>
     <string name="forgot_password_text">¿Has olvidado tu contraseña?</string>
     <string name="no_acc_text">¿Aún no tienes cuenta?</string>
+    <string name="tos_notaccepted_error">Debes aceptar los términos y condiciones</string>
+    <string name="pector_logo_description">Logo de Pector</string>
+    <string name="alertdialog_confirmbutton">OK</string>
 
 </resources>

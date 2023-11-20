@@ -22,7 +22,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -86,8 +85,10 @@ fun BodyContent(navController: NavController,
     ) {
         Image(
             painter = painterResource(R.drawable.pector_logo),
-            contentDescription = "Logo de Pector",
-            modifier = Modifier.padding(40.dp).size(150.dp)
+            contentDescription = stringResource(R.string.pector_logo_description),
+            modifier = Modifier
+                .padding(40.dp)
+                .size(150.dp)
         )
         PectorTextField(
             value = username,
@@ -150,7 +151,7 @@ fun BodyContent(navController: NavController,
                     return@lambda
                 }
                 if(!termsAccepted){
-                    termsError = "Debes aceptar los términos y condiciones"
+                    termsError = context.getString(R.string.tos_notaccepted_error)
                     return@lambda
                 }
                 onSignup(username, email, password)
@@ -206,7 +207,7 @@ fun ErrorDialog(
                         onDismiss()
                     }
                 ) {
-                    Text("OK")
+                    Text(stringResource(R.string.alertdialog_confirmbutton))
                 }
             }
         )
