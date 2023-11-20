@@ -98,7 +98,7 @@ fun BodyContent(navController: NavController
             )
 
             PectorButton(
-                onClick = lambda@{},
+                onClick = { navController.navigate(route = AppScreens.SignupScreen.route) },
                 text = stringResource(R.string.button_signup),
             )
 
