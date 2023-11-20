@@ -2,7 +2,6 @@ package es.ulpgc.pamn.pector.signup
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -137,24 +136,14 @@ fun BodyContent(navController: NavController,
             )
         }
         PectorButton(
-            onClick = lambda@{
-                if(!username.isValidUsername()){
-                    usernameError = context.getString(R.string.username_invalid_error)
-                    return@lambda
+            onClick = {
+                when {
+                    !username.isValidUsername() -> usernameError = context.getString(R.string.username_invalid_error)
+                    !email.isValidEmail() -> emailError = context.getString(R.string.email_invalid_error)
+                    !password.isValidPassword() -> passwordError = context.getString(R.string.password_invalid_error)
+                    !termsAccepted -> termsError = context.getString(R.string.tos_notaccepted_error)
+                    else -> onSignup(username, email, password)
                 }
-                if(!email.isValidEmail()){
-                    emailError = context.getString(R.string.email_invalid_error)
-                    return@lambda
-                }
-                if(!password.isValidPassword()){
-                    passwordError = context.getString(R.string.password_invalid_error)
-                    return@lambda
-                }
-                if(!termsAccepted){
-                    termsError = context.getString(R.string.tos_notaccepted_error)
-                    return@lambda
-                }
-                onSignup(username, email, password)
             },
             text = stringResource(R.string.button_signup),
             modifier = Modifier.padding(20.dp),
@@ -168,9 +157,7 @@ fun BodyContent(navController: NavController,
             )
         }
         when(signupState) {
-            is Result.Success -> {
-                navController.navigate(route = AppScreens.LoginScreen.route)
-            }
+            is Result.Success -> navController.navigate(route = AppScreens.LoginScreen.route)
             is Result.Error -> {
                 errorMessage = signupState.exception.message ?: ""
                 showDialog.value = true
