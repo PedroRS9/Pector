@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.login.LoginScreen
+import es.ulpgc.pamn.pector.mainmenu.MainMenuScreen
 import es.ulpgc.pamn.pector.signup.SignupScreen
 
 @Composable
@@ -17,6 +18,9 @@ fun AppNavigation() {
         }
         composable(route = AppScreens.SignupScreen.route){ backStackEntry ->
             SignupScreen(navController, backStackEntry)
+        }
+        composable(route = AppScreens.MainMenuScreen.route){ backStackEntry ->
+            MainMenuScreen(navController, backStackEntry)
         }
     }
 }
