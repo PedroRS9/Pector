@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Pector</string>
     <string name="type_password">Introduce contraseña</string>
-    <string name="type_user">Introduce usuario</string>
+    <string name="type_user">Introduce usuario o email</string>
     <string name="type_email">Introduce email</string>
     <string name="accept_tos">Aceptar términos y condiciones</string>
     <string name="button_signup">Registrarse</string>

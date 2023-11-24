@@ -63,4 +63,24 @@ class FirebaseUserRepository : UserRepository {
         }
     }
 
+    override fun findUserByEmail(email: String, callback: (User?) -> Unit) {
+        database.collection("users").whereEqualTo("email", email).get().addOnSuccessListener { documents ->
+            if (documents.isEmpty) {
+                callback(null)
+            } else {
+                val document = documents.documents[0]
+                val user = User(
+                    name = document.getString("username") ?: "",
+                    password = "", // las contraseñas no se almacenan en Firestore
+                    email = document.getString("email") ?: "",
+                    pictureURL = document.getString("pictureURL"),
+                    level = document.getLong("level")?.toInt() ?: 1,
+                    xp = document.getLong("xp")?.toInt() ?: 0
+                )
+                callback(user)
+            }
+        }
+    }
+
+
 }
