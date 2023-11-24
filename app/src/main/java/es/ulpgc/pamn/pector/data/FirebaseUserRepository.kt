@@ -20,7 +20,10 @@ class FirebaseUserRepository : UserRepository {
                     val firebaseUser = it.result?.user
                     val userMap = hashMapOf(
                         "username" to user.getName(),
-                        "email" to user.getEmail()
+                        "email" to user.getEmail(),
+                        "pictureURL" to null,
+                        "level" to 1,
+                        "xp" to 0
                     )
                     if (firebaseUser != null) {
                         try {
@@ -51,7 +54,9 @@ class FirebaseUserRepository : UserRepository {
                     name = document.getString("username") ?: "",
                     password = "", // we don't store passwords in firestore
                     email = document.getString("email") ?: "",
-                    pictureURL = document.getString("pictureURL")
+                    pictureURL = document.getString("pictureURL"),
+                    level = document.getLong("level")?.toInt() ?: 1,
+                    xp = document.getLong("xp")?.toInt() ?: 0
                 )
                 callback(user)
             }
