@@ -21,35 +21,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.components.PectorButton
-import es.ulpgc.pamn.pector.components.PectorCheckbox
 import es.ulpgc.pamn.pector.components.PectorClickableText
 import es.ulpgc.pamn.pector.components.PectorTextField
 import es.ulpgc.pamn.pector.data.Result
-import es.ulpgc.pamn.pector.extensions.isValidEmail
-import es.ulpgc.pamn.pector.extensions.isValidPassword
-import es.ulpgc.pamn.pector.extensions.isValidUsername
 import es.ulpgc.pamn.pector.extensions.pectorBackground
-import es.ulpgc.pamn.pector.global.UserViewModel
+import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.navigation.AppScreens
-import es.ulpgc.pamn.pector.login.ErrorDialog
-import es.ulpgc.pamn.pector.signup.SignupViewModel
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
-import java.lang.Exception
 
 @Composable
-fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry, userViewModel: UserViewModel){
+fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf){
     val viewModel: LoginViewModel = viewModel(backStackEntry)
     val loginState by viewModel.loginState.observeAsState()
     Column{
@@ -58,7 +49,7 @@ fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry,
             onLogin = { username, password -> viewModel.onLogin(username,password) },
             clearErrors = { viewModel.clearError() },
             loginState = loginState,
-            userViewModel = userViewModel
+            userGlobalConf = userGlobalConf
         )
     }
 }
@@ -67,7 +58,7 @@ fun BodyContent(navController: NavController,
                 onLogin:(String, String) -> Unit,
                 clearErrors: () -> Unit,
                 loginState: Result?,
-                userViewModel: UserViewModel
+                userGlobalConf: UserGlobalConf
 
 ) {
     var username by remember { mutableStateOf("") }
@@ -146,7 +137,7 @@ fun BodyContent(navController: NavController,
         }
         when(loginState) {
             is Result.LoginSuccess -> {
-                userViewModel.setUser(loginState.user)
+                userGlobalConf.setUser(loginState.user)
                 navController.navigate(route = AppScreens.MainMenuScreen.route)
             }
             is Result.Error -> {
@@ -202,7 +193,7 @@ fun ShowPreview(){
                 onLogin = { _,_ ->},
                 clearErrors = {},
                 loginState = Result.Success(true),
-                userViewModel = viewModel()
+                userGlobalConf = viewModel()
             )
         }
     }
