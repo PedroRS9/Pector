@@ -15,5 +15,17 @@
     <string name="tos_notaccepted_error">Debes aceptar los términos y condiciones</string>
     <string name="pector_logo_description">Logo de Pector</string>
     <string name="alertdialog_confirmbutton">OK</string>
+    <string name="welcome_message">BIENVENIDO A PECTOR!</string>
+
+    <!-- Social Media URLs -->
+    <string name="url_facebook">https://www.facebook.com</string>
+    <string name="url_twitter">https://www.twitter.com</string>
+    <string name="url_instagram">https://www.instagram.com</string>
+
+    <!-- Paquetes de Aplicaciones -->
+    <string name="package_facebook">com.facebook.katana</string>
+    <string name="package_twitter">com.twitter.android</string>
+    <string name="package_instagram">com.instagram.android</string>
+
 
 </resources>

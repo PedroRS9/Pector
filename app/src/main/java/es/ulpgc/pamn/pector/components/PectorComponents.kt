@@ -1,10 +1,16 @@
 package es.ulpgc.pamn.pector.components
 
+import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
@@ -32,15 +38,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
+import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.ui.theme.DarkViolet
 
 @Composable
@@ -128,7 +137,7 @@ fun PectorCheckbox(
     label: String,
     modifier: Modifier = Modifier
 ){
-    LabelledCheckbox(
+    PectorLabelledCheckbox(
         checked = checked,
         onCheckedChange = onCheckedChange,
         colors = CheckboxDefaults.colors(checkmarkColor = Color.White),
@@ -138,7 +147,7 @@ fun PectorCheckbox(
 }
 
 @Composable
-fun LabelledCheckbox(
+fun PectorLabelledCheckbox(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     label: String,
@@ -179,3 +188,92 @@ fun PectorClickableText(
         )
     )
 }
+
+@Composable
+fun PectorTransparentWelcomeButton(
+onClick: () -> Unit,
+text: String,
+modifier: Modifier = Modifier
+) {
+    OutlinedButton(
+        onClick = onClick,
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 8.dp)
+            .height(50.dp)
+            .clip(RoundedCornerShape(4.dp)),
+        border = BorderStroke(1.dp, Color.White),
+        shape = RoundedCornerShape(4.dp),
+        colors = ButtonDefaults.outlinedButtonColors(
+            contentColor = Color.White
+        )
+    ) {
+        Text(
+            text = text,
+            color = Color.White,
+            fontSize = 18.sp
+        )
+    }
+}
+
+@Composable
+fun PectorSocialMediaIcons() {
+
+    val context = LocalContext.current
+    val resources = context.resources
+    val urlFacebook = resources.getString(R.string.url_facebook)
+    val urlTwitter = resources.getString(R.string.url_twitter)
+    val urlInstagram = resources.getString(R.string.url_instagram)
+    val packageFacebook = resources.getString(R.string.package_facebook)
+    val packageTwitter = resources.getString(R.string.package_twitter)
+    val packageInstagram = resources.getString(R.string.package_instagram)
+
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 50.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        IconButton(
+            onClick = { launchAppOrOpenUrl(context, packageFacebook, urlFacebook) } ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_facebook),
+                contentDescription = "Facebook",
+                tint = Color.White
+            )
+        }
+        IconButton(
+            onClick = { launchAppOrOpenUrl(context, packageTwitter, urlTwitter) } ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_x),
+                contentDescription = "X (Twitter)",
+                tint = Color.White
+            )
+        }
+        IconButton(
+            onClick = { launchAppOrOpenUrl(context, packageInstagram, urlInstagram) } ) {
+            Icon(
+                painter = painterResource(R.drawable.ic_instagram),
+                contentDescription = "Instagram",
+                tint = Color.White
+            )
+        }
+    }
+}
+
+private fun launchAppOrOpenUrl(context: Context, packageName: String, url: String) {
+    try {
+        val intent = context.packageManager.getLaunchIntentForPackage(packageName)
+        if (intent != null) {
+            context.startActivity(intent)
+        } else {
+            val fallbackIntent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
+            context.startActivity(fallbackIntent)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+
+
