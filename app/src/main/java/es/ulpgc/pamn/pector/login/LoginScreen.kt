@@ -26,6 +26,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
@@ -40,6 +41,7 @@ import es.ulpgc.pamn.pector.extensions.isValidEmail
 import es.ulpgc.pamn.pector.extensions.isValidPassword
 import es.ulpgc.pamn.pector.extensions.isValidUsername
 import es.ulpgc.pamn.pector.extensions.pectorBackground
+import es.ulpgc.pamn.pector.global.UserViewModel
 import es.ulpgc.pamn.pector.navigation.AppScreens
 import es.ulpgc.pamn.pector.login.ErrorDialog
 import es.ulpgc.pamn.pector.signup.SignupViewModel
@@ -47,7 +49,7 @@ import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import java.lang.Exception
 
 @Composable
-fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry){
+fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry, userViewModel: UserViewModel){
     val viewModel: LoginViewModel = viewModel(backStackEntry)
     val loginState by viewModel.loginState.observeAsState()
     Column{
@@ -56,6 +58,7 @@ fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry)
             onLogin = { username, password -> viewModel.onLogin(username,password) },
             clearErrors = { viewModel.clearError() },
             loginState = loginState,
+            userViewModel = userViewModel
         )
     }
 }
@@ -64,6 +67,7 @@ fun BodyContent(navController: NavController,
                 onLogin:(String, String) -> Unit,
                 clearErrors: () -> Unit,
                 loginState: Result?,
+                userViewModel: UserViewModel
 
 ) {
     var username by remember { mutableStateOf("") }
@@ -141,7 +145,8 @@ fun BodyContent(navController: NavController,
             )
         }
         when(loginState) {
-            is Result.Success -> {
+            is Result.LoginSuccess -> {
+                userViewModel.setUser(loginState.user)
                 navController.navigate(route = AppScreens.MainMenuScreen.route)
             }
             is Result.Error -> {
@@ -149,7 +154,7 @@ fun BodyContent(navController: NavController,
                 showDialog.value = true
                 clearErrors()
             }
-            null -> {}
+            else -> {}
         }
     }
 }
@@ -197,6 +202,7 @@ fun ShowPreview(){
                 onLogin = { _,_ ->},
                 clearErrors = {},
                 loginState = Result.Success(true),
+                userViewModel = viewModel()
             )
         }
     }

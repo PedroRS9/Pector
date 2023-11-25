@@ -31,7 +31,7 @@ class LoginViewModel : ViewModel() {
                 FirebaseAuth.getInstance().signInWithEmailAndPassword(user.getEmail(), password)
                     .addOnCompleteListener { task ->
                         if (task.isSuccessful) {
-                            _loginState.postValue(Result.Success(true))
+                            _loginState.postValue(Result.LoginSuccess(user))
                         } else {
                             _loginState.postValue(Result.Error(Exception("Fallo de autenticación")))
                         }

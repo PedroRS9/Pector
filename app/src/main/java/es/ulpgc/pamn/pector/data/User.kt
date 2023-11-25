@@ -12,4 +12,6 @@ class User(
     fun getPassword() = password;
     fun getEmail() = email;
     fun getPictureURL() = pictureURL
+    fun getLevel() = level
+    fun getXp() = xp
 }

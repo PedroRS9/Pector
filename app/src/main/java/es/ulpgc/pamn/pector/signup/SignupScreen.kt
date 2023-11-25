@@ -164,6 +164,7 @@ fun BodyContent(navController: NavController,
                 clearErrors()
             }
             null -> {}
+            else -> {}
         }
     }
 }
