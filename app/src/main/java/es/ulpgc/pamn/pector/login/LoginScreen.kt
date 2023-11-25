@@ -80,7 +80,7 @@ fun BodyContent(navController: NavController,
         PectorTextField(
             value = username,
             onValueChange = { username = it },
-            label = stringResource(R.string.type_user),
+            label = stringResource(R.string.type_user_email),
             isUser = true
         )
         PectorTextField(
