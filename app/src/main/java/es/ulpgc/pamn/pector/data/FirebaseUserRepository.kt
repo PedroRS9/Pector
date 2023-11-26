@@ -82,5 +82,30 @@ class FirebaseUserRepository : UserRepository {
         }
     }
 
+    override fun updateUser(user: User, callback: (Result) -> Unit) {
+        val firebaseUser = FirebaseAuth.getInstance().currentUser
+        if (firebaseUser != null) {
+            val userMap = hashMapOf(
+                "username" to user.getName(),
+                "email" to user.getEmail(),
+                "pictureURL" to user.getPictureURL(),
+                "level" to user.getLevel(),
+                "xp" to user.getXp()
+            )
+            database.collection("users").document(firebaseUser.uid).update(userMap as Map<String, Any>).addOnCompleteListener {
+                if (it.isSuccessful) {
+                    callback(Result.Success(true))
+                } else {
+                    it.exception?.let { exception ->
+                        callback(Result.Error(exception))
+                    }
+                }
+            }
+        } else {
+            callback(Result.Error(Exception("Error desconocido")))
+        }
+    }
+
+
 
 }

@@ -32,6 +32,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.R
+import es.ulpgc.pamn.pector.components.ErrorDialog
 import es.ulpgc.pamn.pector.data.Result
 import es.ulpgc.pamn.pector.extensions.isValidEmail
 import es.ulpgc.pamn.pector.extensions.isValidPassword
@@ -166,39 +167,6 @@ fun BodyContent(navController: NavController,
             null -> {}
             else -> {}
         }
-    }
-}
-
-@Composable
-fun ErrorDialog(
-    showDialog: MutableState<Boolean>,
-    title: String,
-    message: String,
-    onDismiss: () -> Unit
-) {
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                // Dismiss the dialog when the user clicks outside the dialog or on the back button.
-                // If you want to disable that functionality, simply use an empty onDismissRequest.
-                onDismiss()
-            },
-            title = {
-                Text(text = title)
-            },
-            text = {
-                Text(text = message)
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDismiss()
-                    }
-                ) {
-                    Text(stringResource(R.string.alertdialog_confirmbutton))
-                }
-            }
-        )
     }
 }
 

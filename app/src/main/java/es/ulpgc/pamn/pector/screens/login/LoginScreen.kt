@@ -25,11 +25,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.R
+import es.ulpgc.pamn.pector.components.ErrorDialog
 import es.ulpgc.pamn.pector.components.PectorButton
 import es.ulpgc.pamn.pector.components.PectorClickableText
 import es.ulpgc.pamn.pector.components.PectorTextField
@@ -104,7 +106,8 @@ fun BodyContent(navController: NavController,
             PectorClickableText(
                 text = stringResource(R.string.forgot_password_text),
                 onClick = {},
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp),
+                fontSize = 16.sp
             )
         }
         Row(
@@ -117,7 +120,8 @@ fun BodyContent(navController: NavController,
             PectorClickableText(
                 text = stringResource(R.string.no_acc_text),
                 onClick = {},
-                modifier = Modifier.padding(start = 8.dp)
+                modifier = Modifier.padding(start = 8.dp),
+                fontSize = 16.sp
             )
 
             PectorButton(
@@ -147,37 +151,6 @@ fun BodyContent(navController: NavController,
             }
             else -> {}
         }
-    }
-}
-
-@Composable
-fun ErrorDialog(
-    showDialog: MutableState<Boolean>,
-    title: String,
-    message: String,
-    onDismiss: () -> Unit
-) {
-    if (showDialog.value) {
-        AlertDialog(
-            onDismissRequest = {
-                onDismiss()
-            },
-            title = {
-                Text(text = title)
-            },
-            text = {
-                Text(text = message)
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        onDismiss()
-                    }
-                ) {
-                    Text(stringResource(R.string.alertdialog_confirmbutton))
-                }
-            }
-        )
     }
 }
 @Preview

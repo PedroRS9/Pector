@@ -4,22 +4,33 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
@@ -30,7 +41,9 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,12 +53,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Black
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat.startActivity
@@ -172,11 +193,46 @@ fun PectorLabelledCheckbox(
 }
 
 @Composable
+fun ErrorDialog(
+    showDialog: MutableState<Boolean>,
+    title: String,
+    message: String,
+    onDismiss: () -> Unit
+) {
+    if (showDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                // Dismiss the dialog when the user clicks outside the dialog or on the back button.
+                // If you want to disable that functionality, simply use an empty onDismissRequest.
+                onDismiss()
+            },
+            title = {
+                Text(text = title)
+            },
+            text = {
+                Text(text = message)
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        onDismiss()
+                    }
+                ) {
+                    Text(stringResource(R.string.alertdialog_confirmbutton))
+                }
+            }
+        )
+    }
+}
+
+@Composable
 fun PectorClickableText(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     color: Color = Color.White,
+    fontSize: TextUnit,
+    fontWeight: FontWeight? = null
 ) {
     ClickableText(
         text = AnnotatedString(text),
@@ -184,7 +240,8 @@ fun PectorClickableText(
         modifier = modifier,
         style = TextStyle(
             color = color,
-            fontSize = 16.sp
+            fontSize = fontSize,
+            fontWeight = fontWeight
         )
     )
 }
@@ -275,5 +332,47 @@ private fun launchAppOrOpenUrl(context: Context, packageName: String, url: Strin
     }
 }
 
+@Composable
+fun PectorProfilePicture(
+    userProfileImage: Painter = painterResource(id = R.drawable.default_profile_pic),
+    isChangeable: Boolean = false,
+    onUploadImageClick: () -> Unit = {},
+    onClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val imageModifier = Modifier
+        .size(150.dp)
+        .clip(CircleShape)
+        .border(2.dp, Color.Gray, CircleShape)
+        .clickable{ onClick() }
+    val iconSize = 22.dp
+    val offsetInPx = LocalDensity.current.run { (iconSize / 2).roundToPx() }
 
-
+    Box(modifier = modifier) {
+        Image(
+            painter = userProfileImage,
+            contentDescription = "Imagen de perfil",
+            modifier = imageModifier
+        )
+        if(isChangeable){
+            IconButton(
+                onClick = onUploadImageClick,
+                modifier = Modifier
+                    .size(35.dp)
+                    .offset {
+                        IntOffset(x = +offsetInPx - 20, y = +offsetInPx - 20)
+                    }
+                    .clip(CircleShape)
+                    .background(Black)
+                    .size(iconSize)
+                    .align(Alignment.BottomEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.CameraAlt,
+                    contentDescription = "Subir foto de perfil",
+                    tint = Color.White
+                )
+            }
+        }
+    }
+}
