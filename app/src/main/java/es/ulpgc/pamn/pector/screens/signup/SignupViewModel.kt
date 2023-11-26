@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector.signup
+package es.ulpgc.pamn.pector.screens.signup
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

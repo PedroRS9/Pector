@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector.login
+package es.ulpgc.pamn.pector.screens.login
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

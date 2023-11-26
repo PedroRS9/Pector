@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector.welcomemenu
+package es.ulpgc.pamn.pector.screens.welcomemenu
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement

@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector.signup
+package es.ulpgc.pamn.pector.screens.signup
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image

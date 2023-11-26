@@ -5,10 +5,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.global.UserGlobalConf
-import es.ulpgc.pamn.pector.login.LoginScreen
-import es.ulpgc.pamn.pector.mainmenu.MainMenuScreen
-import es.ulpgc.pamn.pector.signup.SignupScreen
-import es.ulpgc.pamn.pector.welcomemenu.WelcomeScreen
+import es.ulpgc.pamn.pector.screens.login.LoginScreen
+import es.ulpgc.pamn.pector.screens.mainmenu.MainMenuScreen
+import es.ulpgc.pamn.pector.screens.signup.SignupScreen
+import es.ulpgc.pamn.pector.screens.welcomemenu.WelcomeScreen
 @Composable
 fun AppNavigation() {
 

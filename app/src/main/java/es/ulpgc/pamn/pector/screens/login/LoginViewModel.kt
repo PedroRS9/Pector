@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector.login
+package es.ulpgc.pamn.pector.screens.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData

@@ -19,7 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.google.firebase.FirebaseApp
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
-import es.ulpgc.pamn.pector.signup.SignupScreen
+import es.ulpgc.pamn.pector.screens.signup.SignupScreen
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 
 class MainActivity : ComponentActivity() {

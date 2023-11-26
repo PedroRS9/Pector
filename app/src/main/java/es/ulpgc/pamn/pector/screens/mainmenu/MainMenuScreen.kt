@@ -1,4 +1,4 @@
-package es.ulpgc.pamn.pector.mainmenu
+package es.ulpgc.pamn.pector.screens.mainmenu
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
