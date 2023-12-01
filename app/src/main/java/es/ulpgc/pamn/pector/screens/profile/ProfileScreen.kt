@@ -47,7 +47,6 @@ import coil.compose.rememberAsyncImagePainter
 import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.components.ErrorDialog
 import es.ulpgc.pamn.pector.data.Result
-import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
@@ -61,11 +60,8 @@ fun ProfileScreen(navController: NavController, backStackEntry: NavBackStackEntr
         navController = navController,
         user = user ?: User("Error", "", ""),
         loadImage = { user?.let { viewModel.onLoad(it) } },
-        uploadImage = { filename: String, byteArray: ByteArray ->
-            viewModel.onChooseImage(filename, byteArray)
-        },
-        updateUser = { usuario: User ->
-            viewModel.onImageUploaded(usuario)
+        uploadImage = { filename: String, byteArray: ByteArray, us: User ->
+            viewModel.onChooseImage(filename, byteArray, us)
         },
         clearViewModel = { viewModel.clearError()},
         imageState = imageState,
@@ -78,18 +74,24 @@ fun BodyContent(
     navController: NavController,
     user: User,
     loadImage: () -> Unit,
-    uploadImage: (String, ByteArray) -> Unit,
-    updateUser: (User) -> Unit,
+    uploadImage: (String, ByteArray, User) -> Unit,
     clearViewModel: () -> Unit,
     imageState: Result?,
     updateState: Result?
 ){
-    val defaultPainter = painterResource(id = R.drawable.default_profile_pic)
-    var profilePicturePainter by remember { mutableStateOf(defaultPainter) }
+    //var painter = rememberAsyncImagePainter(R.drawable.ic_profile_picture)
+    val painter = when (imageState) {
+        is Result.ImageSuccess -> {
+            rememberAsyncImagePainter(imageState.bytes)
+        }
+        else -> painterResource(id = R.drawable.default_profile_pic)
+    }
     val showDialog = remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
-    var imageLoaded by remember { mutableStateOf(false) }
     val context = LocalContext.current
+    LaunchedEffect(Unit) {
+        loadImage()
+    }
     Column(
         modifier = Modifier.pectorBackground(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -104,17 +106,11 @@ fun BodyContent(
                     val outputStream = ByteArrayOutputStream()
                     bitmap.compress(Bitmap.CompressFormat.JPEG, 100, outputStream)
                     val bytes = outputStream.toByteArray()
-                    uploadImage("${user.getName()}.jpg", bytes)
+                    uploadImage("${user.getName()}.jpg", bytes, user)
                 }
             }
         }
-        LaunchedEffect(key1 = user) {
-            if (!imageLoaded) {
-                loadImage()
-                imageLoaded = true
-            }
-        }
-        PectorProfilePicture(userProfileImage = profilePicturePainter, isChangeable = true, modifier = Modifier.padding(20.dp), onUploadImageClick = {
+        PectorProfilePicture(userProfileImage = painter, isChangeable = true, modifier = Modifier.padding(20.dp), onUploadImageClick = {
             launcher.launch("image/*")
         })
         Text(text = user.getName(), color = Color.White, fontSize = 30.sp, modifier = Modifier.padding(20.dp))
@@ -144,25 +140,6 @@ fun BodyContent(
                 message = errorMessage,
                 onDismiss = { showDialog.value = false }
             )
-        }
-
-        when(imageState) {
-            is Result.ImageSuccess -> {
-                println("Success!")
-                val inputStream = ByteArrayInputStream(imageState.bytes)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                profilePicturePainter = rememberAsyncImagePainter(bitmap)
-                user.setPictureURL("profile-pictures/${user.getName()}.jpg")
-                updateUser(user)
-            }
-            is Result.Error -> {
-                println("Error!")
-                errorMessage = imageState.exception.message ?: "Error desconocido"
-                showDialog.value = true
-                clearViewModel()
-            }
-            null -> {}
-            else -> {}
         }
 
         when(updateState){
@@ -207,8 +184,7 @@ fun ShowPreview(){
                 updateState = null,
                 clearViewModel = {},
                 loadImage = {},
-                uploadImage = { _, _ -> },
-                updateUser = { _ -> },
+                uploadImage = { _, _, _ -> }
             )
         }
     }

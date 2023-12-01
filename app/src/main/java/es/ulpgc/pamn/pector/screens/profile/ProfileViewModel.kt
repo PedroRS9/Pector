@@ -1,9 +1,5 @@
 package es.ulpgc.pamn.pector.screens.profile
 
-import android.content.Intent
-import android.provider.MediaStore
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -18,11 +14,11 @@ class ProfileViewModel : ViewModel() {
 
     private val imageRepository: ImageRepository = FirebaseImageRepository()
     private val _imageState = MutableLiveData<Result>()
-    val imageState: LiveData<Result> = _imageState;
+    val imageState: LiveData<Result> = _imageState
 
     private val userRepository: UserRepository = FirebaseUserRepository()
     private val _updateState = MutableLiveData<Result>()
-    val updateState: LiveData<Result> = _updateState;
+    val updateState: LiveData<Result> = _updateState
     fun onLoad(user: User){
         user.getPictureURL()?.let {
             imageRepository.downloadImage(it){ result: Result ->
@@ -31,9 +27,13 @@ class ProfileViewModel : ViewModel() {
         }
     }
 
-    fun onChooseImage(filename: String, byteArray: ByteArray){
+    fun onChooseImage(filename: String, byteArray: ByteArray, user: User){
         imageRepository.uploadImage(filename, byteArray){ result: Result ->
             _imageState.value = result
+            if(result is Result.ImageSuccess){
+                user.setPictureURL("profile-pictures/${filename}")
+                onImageUploaded(user)
+            }
         }
     }
 

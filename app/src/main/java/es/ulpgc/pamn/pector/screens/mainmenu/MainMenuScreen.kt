@@ -1,6 +1,5 @@
 package es.ulpgc.pamn.pector.screens.mainmenu
 
-import android.graphics.BitmapFactory
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
@@ -29,11 +27,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -54,7 +50,6 @@ import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.navigation.AppScreens
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
-import java.io.ByteArrayInputStream
 
 @Composable
 fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf) {
@@ -64,7 +59,6 @@ fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEnt
     BodyContent(
         navController = navController,
         user = user,
-        clearViewModel = { viewModel.clear() },
         loadImage = { user?.let { viewModel.onLoad(it) } },
         imageState = imageState
     )
@@ -74,20 +68,17 @@ fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEnt
 fun BodyContent(
     navController: NavController,
     user: User?,
-    clearViewModel: () -> Unit = {},
     loadImage: () -> Unit = {},
     imageState: Result?
 ) {
-    val painter = painterResource(id = R.drawable.default_profile_pic)
-    var profilePicture by remember { mutableStateOf(painter) }
+    val painter = when (imageState) {
+        is Result.ImageSuccess -> rememberAsyncImagePainter(imageState.bytes)
+        else -> painterResource(id = R.drawable.default_profile_pic)
+    }
     val showDialog = remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-    var imageLoaded by remember { mutableStateOf(false) }
-    LaunchedEffect(key1 = user) {
-        if (!imageLoaded) {
-            loadImage()
-            imageLoaded = true
-        }
+    val errorMessage by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        loadImage()
     }
 
     Column(
@@ -106,25 +97,7 @@ fun BodyContent(
                 )
             }
         }
-
-        // User image
-        when(imageState) {
-            is Result.ImageSuccess -> {
-                println("Success!")
-                val inputStream = ByteArrayInputStream(imageState.bytes)
-                val bitmap = BitmapFactory.decodeStream(inputStream)
-                profilePicture = rememberAsyncImagePainter(bitmap)
-            }
-            is Result.Error -> {
-                println("Error!")
-                errorMessage = imageState.exception.message ?: "Error desconocido"
-                showDialog.value = true
-                clearViewModel()
-            }
-            null -> {}
-            else -> {}
-        }
-        PectorProfilePicture(userProfileImage = profilePicture, onClick = { navController.navigate(route = AppScreens.ProfileScreen.route) } )
+        PectorProfilePicture(userProfileImage = painter, onClick = { navController.navigate(route = AppScreens.ProfileScreen.route) } )
 
         // User name and level
         PectorClickableText(
