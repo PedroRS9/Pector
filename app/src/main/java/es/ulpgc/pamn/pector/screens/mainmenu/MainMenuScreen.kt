@@ -113,19 +113,45 @@ fun BodyContent(
             color = Color.White
         )
 
-        // Game buttons grid
         LazyVerticalGrid(
             columns = GridCells.Fixed(2),
             contentPadding = PaddingValues(16.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(6) { index ->
-                GameButton(gameName = "juego $index", onInfoClicked = { /* TODO: Handle info action */ }) {
+            item {
+                GameButton(gameName = "Pasapalabra", onInfoClicked = { /* TODO: Handle info action */ }) {
+                    // TODO: Handle game button click
+                }
+            }
+            item {
+                GameButton(gameName = "Muerte súbita", onInfoClicked = { /* TODO: Handle info action */ }) {
+                    // TODO: Handle game button click
+                }
+            }
+            item {
+                GameButton(gameName = "1vs1", onInfoClicked = { /* TODO: Handle info action */ }) {
+                    // TODO: Handle game button click
+                }
+            }
+            item {
+                GameButton(gameName = "Test",
+                    onInfoClicked = { /* TODO: Handle info action */ },
+                    onGameClicked = { navController.navigate(AppScreens.TestLeaderboardScreen.route)}
+                )
+            }
+            item {
+                GameButton(gameName = "Crucigrama", onInfoClicked = { /* TODO: Handle info action */ }) {
+                    // TODO: Handle game button click
+                }
+            }
+            item {
+                GameButton(gameName = "?", onInfoClicked = { /* TODO: Handle info action */ }) {
                     // TODO: Handle game button click
                 }
             }
         }
+
 
         if(showDialog.value){
             ErrorDialog(
