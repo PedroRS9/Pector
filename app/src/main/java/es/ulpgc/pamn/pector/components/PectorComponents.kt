@@ -11,17 +11,18 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.absoluteOffset
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Error
@@ -30,7 +31,6 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
@@ -55,7 +55,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.painter.Painter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
@@ -65,12 +64,14 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivity
+import coil.compose.rememberAsyncImagePainter
 import es.ulpgc.pamn.pector.R
+import es.ulpgc.pamn.pector.data.TopScore
 import es.ulpgc.pamn.pector.ui.theme.DarkViolet
 
 @Composable
@@ -372,6 +373,64 @@ fun PectorProfilePicture(
                     contentDescription = "Subir foto de perfil",
                     tint = Color.White
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun PectorLeaderboard(leaderboard: List<TopScore>){
+    Box(
+        modifier = Modifier
+            .size(330.dp, 355.dp)
+            .clip(RoundedCornerShape(20.dp))
+            .background(DarkViolet),
+        contentAlignment = Alignment.TopCenter
+    ) {
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(1)
+        ) {
+            items(1){
+                Text(
+                    text = "5 mejores puntuaciones",
+                    color = Color.White,
+                    fontSize = 16.sp,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(3.dp)
+                )
+            }
+            items(leaderboard.size) { i ->
+                val rowUser = leaderboard.get(i)
+                Row(
+                    modifier = Modifier.padding(6.dp).padding(start = 5.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp), // Espacio entre elementos
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    val painter = if(rowUser.profilePicture != null){
+                        rememberAsyncImagePainter(rowUser.profilePicture!!)
+                    } else {
+                        painterResource(id = R.drawable.default_profile_pic)
+                    }
+                    PectorProfilePicture(
+                        userProfileImage = painter,
+                        modifier = Modifier.size(50.dp)
+                    )
+                    // Username
+                    Text(
+                        text = rowUser.username,
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    // Spacer entre el nombre y la puntuación
+                    Spacer(modifier = Modifier.size(8.dp))
+                    // Score
+                    Text(
+                        text = rowUser.score.toString(),
+                        fontSize = 24.sp,
+                        color = Color.White
+                    )
+                }
             }
         }
     }
