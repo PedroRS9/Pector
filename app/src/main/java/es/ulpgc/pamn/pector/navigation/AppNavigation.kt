@@ -11,6 +11,8 @@ import es.ulpgc.pamn.pector.screens.mainmenu.MainMenuScreen
 import es.ulpgc.pamn.pector.screens.profile.ProfileScreen
 import es.ulpgc.pamn.pector.screens.signup.SignupScreen
 import es.ulpgc.pamn.pector.screens.test.TestLeaderboardScreen
+import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraLeaderboardScreen
+import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraScreen
 import es.ulpgc.pamn.pector.screens.welcomemenu.WelcomeScreen
 @Composable
 fun AppNavigation() {
@@ -40,6 +42,12 @@ fun AppNavigation() {
         }
         composable(route = AppScreens.TestScreen.route){ backStackEntry ->
             TestScreen(navController, backStackEntry, userGlobalConf)
+        }
+        composable(route = AppScreens.PasapalabraLeaderboardScreen.route){ backStackEntry ->
+            PasapalabraLeaderboardScreen(navController, backStackEntry, userGlobalConf)
+        }
+        composable(route = AppScreens.PasapalabraScreen.route){ backStackEntry ->
+            PasapalabraScreen(navController, backStackEntry, userGlobalConf)
         }
     }
 }

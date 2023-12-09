@@ -120,9 +120,10 @@ fun BodyContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                GameButton(gameName = "Pasapalabra", onInfoClicked = { /* TODO: Handle info action */ }) {
-                    // TODO: Handle game button click
-                }
+                GameButton(gameName = "Pasapalabra",
+                    onInfoClicked = { /* TODO: Handle info action */ },
+                    onGameClicked = { navController.navigate(AppScreens.PasapalabraLeaderboardScreen.route)}
+                )
             }
             item {
                 GameButton(gameName = "Muerte súbita", onInfoClicked = { /* TODO: Handle info action */ }) {
