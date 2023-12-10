@@ -10,4 +10,9 @@ sealed class AppScreens(val route: String){
     object TestScreen : AppScreens("test_screen")
     object PasapalabraLeaderboardScreen : AppScreens("pasapalabra_leaderboard_screen")
     object PasapalabraScreen : AppScreens("pasapalabra_screen")
+    object PasapalabraEndScreen : AppScreens("pasapalabra_end_screen/{correctAnswers}/{incorrectAnswers}/{unanswered}/{points}") {
+        fun createRoute(correctAnswers: Int, incorrectAnswers: Int, unanswered: Int, points: Int): String {
+            return "pasapalabra_end_screen/$correctAnswers/$incorrectAnswers/$unanswered/$points"
+        }
+    }
 }

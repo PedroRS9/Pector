@@ -30,12 +30,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
@@ -44,13 +51,16 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
+import es.ulpgc.pamn.pector.navigation.AppScreens
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import kotlin.math.PI
 import kotlin.math.cos
@@ -58,7 +68,7 @@ import kotlin.math.sin
 
 @Composable
 fun PasapalabraScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf) {
-    val viewModel = PasapalabraViewModel()
+    val viewModel: PasapalabraViewModel = viewModel()
     BodyContent(
         navController = navController,
         user = userGlobalConf.currentUser.value!!,
@@ -78,6 +88,17 @@ fun BodyContent(
     val currentWordItem = roscoItems.getOrNull(currentIndex)
     val wordStates = viewModel.wordStates.value
 
+    // Observa el tiempo restante del cronómetro
+    val currentTime = viewModel.currentTime.value
+    val navigationEvent by viewModel.navigationEvent.observeAsState()
+    LaunchedEffect(navigationEvent) {
+        when (val event = navigationEvent) {
+            is NavigationEvent.Navigate -> {
+                navController.navigate(event.route)
+            }
+            else -> {}
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -85,6 +106,37 @@ fun BodyContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, end = 16.dp)
+        ) {
+            // Botón para salir
+            IconButton(
+                onClick = { viewModel.finalizeGame() },
+                modifier = Modifier.align(Alignment.TopEnd)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Close,
+                    contentDescription = "Salir",
+                    tint = Color.White // Establece el color del icono a blanco
+                )
+            }
+
+            // Cronómetro
+            Text(
+                text = "${currentTime}s", // Muestra el tiempo en segundos
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 24.sp, // Aumenta el tamaño de la fuente para hacer el cronómetro más grande
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(start = 16.dp)
+            )
+        }
+
 
         // Rosco circular con un peso para que ocupe la mayor parte de la pantalla
         Box(

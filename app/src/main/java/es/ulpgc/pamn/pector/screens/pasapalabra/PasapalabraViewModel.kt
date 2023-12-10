@@ -1,8 +1,12 @@
 package es.ulpgc.pamn.pector.screens.pasapalabra
 
+import android.os.CountDownTimer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.LiveData
+import es.ulpgc.pamn.pector.navigation.AppNavigation
+import es.ulpgc.pamn.pector.navigation.AppScreens
 import java.text.Normalizer
 
 class PasapalabraViewModel : ViewModel() {
@@ -42,8 +46,52 @@ class PasapalabraViewModel : ViewModel() {
     val currentIndex = mutableStateOf(0)
     val wordStates = mutableStateOf<Map<String, WordAnswerState>>(emptyMap())
 
+    private val _navigationEvent = MutableLiveData<NavigationEvent>()
+    val navigationEvent: LiveData<NavigationEvent> = _navigationEvent
+
+    private val totalTime = 20000L // Tiempo total en milisegundos
+    val currentTime = mutableStateOf(totalTime / 1000) // Tiempo actual en segundos
+    private var timer: CountDownTimer? = null
+
     init {
         initializeWordStates()
+        startTimer()
+    }
+
+    private fun startTimer() {
+        timer = object : CountDownTimer(totalTime, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                // Actualiza el estado con el tiempo restante en segundos
+                currentTime.value = millisUntilFinished / 1000
+            }
+
+            override fun onFinish() {
+                // El tiempo se ha agotado, maneja el evento aquí
+                currentTime.value = 0
+                onTimeUp()
+            }
+        }.start()
+    }
+
+    private fun onTimeUp() {
+        finalizeGame()
+    }
+    fun finalizeGame() {
+        val correctAnswers = wordStates.value.count { it.value == WordAnswerState.Correct }
+        val incorrectAnswers = wordStates.value.count { it.value == WordAnswerState.Incorrect }
+        val unanswered = wordStates.value.count { it.value == WordAnswerState.Unanswered }
+
+        // Cálculo de puntos, asegurándose de que no sean negativos
+        val rawPoints = correctAnswers * 10 - incorrectAnswers * 5
+        val points = rawPoints.coerceAtLeast(0)
+
+        val route = AppScreens.PasapalabraEndScreen.createRoute(correctAnswers, incorrectAnswers, unanswered, points)
+        _navigationEvent.value = NavigationEvent.Navigate(route)
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        timer?.cancel() // Asegúrate de cancelar el timer cuando el ViewModel se destruya
     }
 
     private fun initializeWordStates() {
@@ -58,14 +106,22 @@ class PasapalabraViewModel : ViewModel() {
     fun onSubmitAnswer() {
         val currentWord = normalizeString(roscoWords.value!![currentIndex.value].word)
         val userAnswer = normalizeString(currentAnswer.value)
-
         val isCorrect = userAnswer.equals(currentWord, ignoreCase = true)
         val newState = if (isCorrect) WordAnswerState.Correct else WordAnswerState.Incorrect
 
-        wordStates.value = wordStates.value.toMutableMap().apply { put(roscoWords.value!![currentIndex.value].word, newState) }
+        // Actualizar el estado de la palabra actual
+        wordStates.value = wordStates.value.toMutableMap().apply {
+            put(roscoWords.value!![currentIndex.value].word, newState)
+        }
+        if (wordStates.value.all { it.value != WordAnswerState.Unanswered }) {
 
-        moveToNextWord()
+            finalizeGame()
+        }else{
+            moveToNextWord()
+        }
+
     }
+
     fun onPasapalabra() {
         moveToNextWord()
     }
@@ -88,6 +144,10 @@ class PasapalabraViewModel : ViewModel() {
 
 enum class WordAnswerState {
     Correct, Incorrect, Unanswered
+}
+sealed class NavigationEvent {
+    object NavigateToEndScreen : NavigationEvent()
+    data class Navigate(val route: String) : NavigationEvent()
 }
 
 
