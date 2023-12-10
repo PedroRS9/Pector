@@ -58,8 +58,8 @@ fun BodyContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .pectorBackground(),
+            .pectorBackground()
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ){
