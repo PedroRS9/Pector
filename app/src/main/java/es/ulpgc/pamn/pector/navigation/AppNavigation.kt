@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.screens.login.LoginScreen
 import es.ulpgc.pamn.pector.screens.mainmenu.MainMenuScreen
+import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraEndScreen
 import es.ulpgc.pamn.pector.screens.profile.ProfileScreen
 import es.ulpgc.pamn.pector.screens.signup.SignupScreen
 import es.ulpgc.pamn.pector.screens.test.TestLeaderboardScreen
@@ -48,6 +49,9 @@ fun AppNavigation() {
         }
         composable(route = AppScreens.PasapalabraScreen.route){ backStackEntry ->
             PasapalabraScreen(navController, backStackEntry, userGlobalConf)
+        }
+        composable(route = AppScreens.PasapalabraEndScreen.route){ backStackEntry ->
+            PasapalabraEndScreen(navController, backStackEntry, userGlobalConf)
         }
     }
 }
