@@ -85,6 +85,7 @@ fun BodyContent(
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+
         // Rosco circular con un peso para que ocupe la mayor parte de la pantalla
         Box(
             modifier = Modifier
@@ -180,7 +181,7 @@ fun RoscoCircular(
     BoxWithConstraints(modifier = modifier) {
         // Utiliza LocalDensity para convertir unidades Dp a Px
         val density = LocalDensity.current
-        val circlePadding = 50.dp
+        val circlePadding = 20.dp
         val circleRadius = 20.dp
 
         with(density) {
@@ -203,16 +204,23 @@ fun RoscoCircular(
                     val y = center.y + sin(angle) * radiusPx
                     val state = wordStates[wordItem.word] ?: WordAnswerState.Unanswered
 
-                    val color = when (state) {
-                        WordAnswerState.Correct -> Color.Green
-                        WordAnswerState.Incorrect -> Color.Red
-                        else -> Color(0xFF9C27B0)
+                    // Decide el color y tamaño basado en si es la palabra actual o no
+                    val (color, radius) = if (index == currentIndex) {
+                        // Resalta la palabra actual
+                        Color(0xFF008ADF) to 19.dp.toPx() // Color amarillo y radio mayor
+                    } else {
+                        // Colores normales para las otras palabras
+                        when (state) {
+                            WordAnswerState.Correct -> Color.Green
+                            WordAnswerState.Incorrect -> Color.Red
+                            else -> Color(0xFF0000CD)
+                        } to 15.dp.toPx()
                     }
 
                     drawCircle(
                         color = color,
                         center = Offset(x, y),
-                        radius = 15.dp.toPx() // Usamos toPx() dentro del ámbito de with(density)
+                        radius = radius // Usa el radio basado en si es la palabra actual o no
                     )
 
                     // Dibuja el texto de la letra aquí
