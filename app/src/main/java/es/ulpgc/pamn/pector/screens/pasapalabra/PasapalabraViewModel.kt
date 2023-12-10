@@ -8,6 +8,7 @@ import androidx.lifecycle.LiveData
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
 import java.text.Normalizer
+import es.ulpgc.pamn.pector.data.WordItem
 
 class PasapalabraViewModel : ViewModel() {
 

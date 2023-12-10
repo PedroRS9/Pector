@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.times
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import es.ulpgc.pamn.pector.data.User
+import es.ulpgc.pamn.pector.data.WordItem
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.navigation.AppScreens
