@@ -34,6 +34,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,11 +71,28 @@ import kotlin.math.sin
 @Composable
 fun PasapalabraScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf) {
     val viewModel: PasapalabraViewModel = viewModel()
-    BodyContent(
-        navController = navController,
-        user = userGlobalConf.currentUser.value!!,
-        viewModel = viewModel
-    )
+    val isLoading = viewModel.isLoading.observeAsState(initial = true)
+
+    if (isLoading.value) {
+        LoadingScreen()
+    } else {
+        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel)
+    }
+}
+@Composable
+fun LoadingScreen() {
+    // Puedes personalizar este composable para mostrar un indicador de carga
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        CircularProgressIndicator()
+    }
+}
+@Composable
+fun GameContent(
+    navController: NavController,
+    user: User,
+    viewModel: PasapalabraViewModel
+) {
+    BodyContent(navController = navController, user = user, viewModel = viewModel)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

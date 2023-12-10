@@ -12,6 +12,9 @@ import es.ulpgc.pamn.pector.data.WordItem
 
 class PasapalabraViewModel : ViewModel() {
 
+    private var _isLoading = MutableLiveData<Boolean>(false)
+    val isLoading: LiveData<Boolean> = _isLoading
+
     private val wordItems = listOf(
         WordItem("ALMACÉN", "Lugar donde se guardan mercancías"),
         WordItem("BAILE", "Actividad donde se mueven al ritmo de la música"),
