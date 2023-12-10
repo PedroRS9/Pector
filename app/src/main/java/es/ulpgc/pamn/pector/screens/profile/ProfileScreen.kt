@@ -46,6 +46,7 @@ import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import coil.compose.rememberAsyncImagePainter
 import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.components.ErrorDialog
+import es.ulpgc.pamn.pector.components.ExperienceBar
 import es.ulpgc.pamn.pector.data.Result
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
@@ -116,7 +117,7 @@ fun BodyContent(
         Text(text = user.getName(), color = Color.White, fontSize = 30.sp, modifier = Modifier.padding(20.dp))
         Text(text = "Nivel ${user.getLevel()}", color = Color.White, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(5.dp))
-        ProgressBar(xp = user.getXp())
+        ExperienceBar(user.getXp())
         Spacer(modifier = Modifier.height(40.dp))
         Box(
             modifier = Modifier
@@ -153,20 +154,6 @@ fun BodyContent(
             else -> {}
         }
     }
-}
-
-@Composable
-fun ProgressBar(
-    xp: Int,
-) {
-    val progress = xp.coerceIn(0, 100)
-    LinearProgressIndicator(
-        modifier = Modifier
-            .height(25.dp),
-        color = Color(0xFF5EBCF0),
-        trackColor = Color.White,
-        progress = progress / 100f
-    )
 }
 
 @Preview

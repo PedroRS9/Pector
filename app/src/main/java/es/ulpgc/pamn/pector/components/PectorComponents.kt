@@ -1,8 +1,18 @@
 package es.ulpgc.pamn.pector.components
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,17 +46,21 @@ import androidx.compose.material3.CheckboxColors
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,6 +87,8 @@ import coil.compose.rememberAsyncImagePainter
 import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.data.TopScore
 import es.ulpgc.pamn.pector.ui.theme.DarkViolet
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun PectorTextField(
@@ -434,4 +450,37 @@ fun PectorLeaderboard(leaderboard: List<TopScore>){
             }
         }
     }
+}
+@Composable
+fun ExperienceBar(
+    xp: Int,
+) {
+    val progress = xp.coerceIn(0, 100)
+    LinearProgressIndicator(
+        modifier = Modifier
+            .height(25.dp),
+        color = Color(0xFF5EBCF0),
+        trackColor = Color.White,
+        progress = progress / 100f
+    )
+}
+
+
+@Composable
+fun AnimatedExperienceBar(
+    currentXp: Int,
+    targetXp: Int
+) {
+    val animatedProgress = animateFloatAsState(
+        targetValue = targetXp.coerceIn(0, 100).toFloat() / 100f,
+        animationSpec = tween(durationMillis = 2000, easing = LinearEasing)
+    ).value
+
+    LinearProgressIndicator(
+        modifier = Modifier
+            .height(25.dp),
+        color = Color(0xFF5EBCF0),
+        trackColor = Color.White,
+        progress = animatedProgress
+    )
 }

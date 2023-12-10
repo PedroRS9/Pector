@@ -1,18 +1,56 @@
 package es.ulpgc.pamn.pector.screens.test
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import es.ulpgc.pamn.pector.data.FirebaseQuestionRepository
+import es.ulpgc.pamn.pector.data.Question
 import es.ulpgc.pamn.pector.data.Result
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 class TestViewModel : ViewModel() {
     private val questionRepository = FirebaseQuestionRepository()
-    private val _questionsState = MutableLiveData<Result>()
-    val questionsState: MutableLiveData<Result> = _questionsState
+    // we initialize the state with the loading state
+    private val _gameState = MutableLiveData<TestGameState>(TestGameState.Loading)
+    val gameState: LiveData<TestGameState> = _gameState
+
+    private val questions = ArrayList<Question>()
+    private var currentQuestionIndex = 0
+    private var correctAnswers = 0
 
     fun getQuestions(numberOfQuestions: Int, category: String) {
-        questionRepository.getRandomQuestions(numberOfQuestions, category) { result: Result ->
-            _questionsState.value = result
+        questionRepository.getRandomQuestions(10, category) { result: Result ->
+            if (result is Result.QuestionSuccess) {
+                questions.addAll(result.questions)
+                val currentQuestion = questions[currentQuestionIndex]
+                _gameState.value = TestGameState.AnsweringQuestion(currentQuestion)
+            }
         }
     }
+
+    fun onOptionSelected(option: String) {
+        // ponemos un delay de 1 segundo para causar tensión
+        viewModelScope.launch{
+            _gameState.value = TestGameState.CheckingIfOptionIsCorrect(questions[currentQuestionIndex], option)
+            delay(1000)
+            val correctOption = questions[currentQuestionIndex].correctOption
+            _gameState.value = TestGameState.ShowCorrectOption(questions[currentQuestionIndex], option, correctOption)
+            delay(3000)
+            if (option == correctOption) {
+                correctAnswers++
+            }
+            currentQuestionIndex++
+            if (currentQuestionIndex < questions.size) {
+                val currentQuestion = questions[currentQuestionIndex]
+                _gameState.value = TestGameState.AnsweringQuestion(currentQuestion)
+            } else {
+                val earnedPoints = correctAnswers * 7
+                _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints)
+            }
+        }
+    }
+
+
 }
