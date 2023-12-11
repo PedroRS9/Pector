@@ -361,7 +361,7 @@ fun PectorProfilePicture(
         .size(150.dp)
         .clip(CircleShape)
         .border(2.dp, Color.Gray, CircleShape)
-        .clickable{ onClick() }
+        .clickable { onClick() }
     val iconSize = 22.dp
     val offsetInPx = LocalDensity.current.run { (iconSize / 2).roundToPx() }
 
@@ -418,7 +418,9 @@ fun PectorLeaderboard(leaderboard: List<TopScore>){
             items(leaderboard.size) { i ->
                 val rowUser = leaderboard.get(i)
                 Row(
-                    modifier = Modifier.padding(6.dp).padding(start = 5.dp),
+                    modifier = Modifier
+                        .padding(6.dp)
+                        .padding(start = 5.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp), // Espacio entre elementos
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -453,7 +455,7 @@ fun PectorLeaderboard(leaderboard: List<TopScore>){
 }
 @Composable
 fun ExperienceBar(
-    xp: Int,
+    xp: Int
 ) {
     val progress = xp.coerceIn(0, 100)
     LinearProgressIndicator(
@@ -462,25 +464,5 @@ fun ExperienceBar(
         color = Color(0xFF5EBCF0),
         trackColor = Color.White,
         progress = progress / 100f
-    )
-}
-
-
-@Composable
-fun AnimatedExperienceBar(
-    currentXp: Int,
-    targetXp: Int
-) {
-    val animatedProgress = animateFloatAsState(
-        targetValue = targetXp.coerceIn(0, 100).toFloat() / 100f,
-        animationSpec = tween(durationMillis = 2000, easing = LinearEasing)
-    ).value
-
-    LinearProgressIndicator(
-        modifier = Modifier
-            .height(25.dp),
-        color = Color(0xFF5EBCF0),
-        trackColor = Color.White,
-        progress = animatedProgress
     )
 }

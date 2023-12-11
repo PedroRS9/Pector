@@ -3,6 +3,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -19,6 +20,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,7 +37,6 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.R
-import es.ulpgc.pamn.pector.components.AnimatedExperienceBar
 import es.ulpgc.pamn.pector.components.ExperienceBar
 import es.ulpgc.pamn.pector.data.Question
 import es.ulpgc.pamn.pector.data.Result
@@ -51,6 +52,7 @@ import es.ulpgc.pamn.pector.ui.theme.LightGrey
 import es.ulpgc.pamn.pector.ui.theme.OptionSelectedColor
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun TestScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf){
@@ -108,6 +110,18 @@ fun BodyContent(
                 val correctAnswers = testGameState.correctAnswers
                 val totalQuestions = testGameState.totalQuestions
                 val earnedPoints = testGameState.earnedPoints
+                var currentXp = user.getXp()
+                var xp by remember { mutableStateOf(currentXp) }
+                val scope = rememberCoroutineScope() // Create a coroutine scope
+
+                LaunchedEffect(Unit){
+                    scope.launch {
+                        fillXpBar(beginXp = currentXp, endXp = (currentXp + earnedPoints)) { progress ->
+                            xp = progress
+                        }
+                    }
+                }
+
                 Column(
                     // centramos el contenido
                     modifier = Modifier.fillMaxSize(),
@@ -118,9 +132,14 @@ fun BodyContent(
                     // PUNTOS GANADOS
                     Text(text = "PREGUNTAS CORRECTAS: $correctAnswers de $totalQuestions", color = Color.White, fontSize = 20.sp)
                     Text(text = "PUNTOS GANADOS: $earnedPoints", color = Color.White, fontSize = 20.sp)
+                    Spacer(modifier = Modifier.size(40.dp))
                     Text(text = "PUNTOS DE EXPERIENCIA", color = Color.White, fontSize = 20.sp)
-                    AnimatedExperienceBar(50, 90)
-                    Spacer(modifier = Modifier.size(60.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        ExperienceBar(xp)
+                        Spacer(modifier = Modifier.size(7.dp))
+                        Text(text = "$xp/100", color = Color.White, fontSize = 20.sp)
+                    }
+                    Spacer(modifier = Modifier.size(40.dp))
                     Text(text = "¿Quieres jugar de nuevo?", color = Color.White, fontSize = 20.sp)
                     Button(
                         onClick = { navController.navigate(AppScreens.TestScreen.route) },
@@ -163,6 +182,17 @@ fun BodyContent(
                 Text(text = "ERROR")
             }
         }
+    }
+}
+
+/** Iterate the progress value */
+suspend fun fillXpBar(beginXp: Int, endXp: Int, updateProgress: (Int) -> Unit) {
+    // we iterate from starting xp to ending xp
+
+    for (i in beginXp..endXp) {
+        println(i)
+        updateProgress(i)
+        delay(10)
     }
 }
 
