@@ -5,48 +5,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
+import es.ulpgc.pamn.pector.data.FirebasePasapalabraQuestionsStackRepository
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
 import java.text.Normalizer
 import es.ulpgc.pamn.pector.data.WordItem
+import es.ulpgc.pamn.pector.data.Result
+import es.ulpgc.pamn.pector.global.SharedRepositoryInstance
 
 class PasapalabraViewModel : ViewModel() {
 
+    private val repository =  FirebasePasapalabraQuestionsStackRepository()
     private var _isLoading = MutableLiveData<Boolean>(true)
     val isLoading: LiveData<Boolean> = _isLoading
 
-    private val wordItems = listOf(
-        WordItem("ALMACÉN", "Lugar donde se guardan mercancías"),
-        WordItem("BAILE", "Actividad donde se mueven al ritmo de la música"),
-        WordItem("COCINA", "Lugar donde se preparan los alimentos"),
-        WordItem("DANZA", "Forma de expresión artística a través del movimiento"),
-        WordItem("ESCALERA", "Estructura para subir o bajar entre niveles"),
-        WordItem("FLORES", "Parte reproductora de las plantas"),
-        WordItem("GUITARRA", "Instrumento musical de cuerdas"),
-        WordItem("HOSPITAL", "Institución de atención médica"),
-        WordItem("ILUSIÓN", "Percepción errónea de la realidad"),
-        WordItem("JARDÍN", "Área con plantas y flores ornamentales"),
-        WordItem("KIOSKO", "Pequeña construcción para vender productos"),
-        WordItem("LIBRO", "Objeto con páginas y texto para leer"),
-        WordItem("MONTAÑA", "Gran elevación de terreno"),
-        WordItem("NATURALEZA", "Conjunto de elementos del entorno natural"),
-        WordItem("OCEANO", "Gran extensión de agua salada"),
-        WordItem("PAISAJE", "Vista panorámica de la naturaleza"),
-        WordItem("QUESO", "Producto lácteo sólido"),
-        WordItem("RELOJ", "Dispositivo para medir el tiempo"),
-        WordItem("SOL", "Estrella que ilumina la Tierra"),
-        WordItem("TREN", "Medio de transporte sobre rieles"),
-        WordItem("UNIVERSO", "Todo lo que existe en el espacio"),
-        WordItem("VOLCÁN", "Montaña que expulsa lava y ceniza"),
-        WordItem("WIFI", "Conexión inalámbrica a internet"),
-        WordItem("XILÓFONO", "Instrumento musical de percusión"),
-        WordItem("YOGA", "Práctica física y espiritual"),
-        WordItem("ZOOLOGÍA", "Estudio de los animales y sus características")
-    )
-
-
     val currentAnswer = mutableStateOf("")
-    val roscoWords = MutableLiveData<List<WordItem>>(wordItems)
+    val roscoWords = MutableLiveData<List<WordItem>>()
     val currentIndex = mutableStateOf(0)
     val wordStates = mutableStateOf<Map<String, WordAnswerState>>(emptyMap())
 
@@ -57,9 +31,36 @@ class PasapalabraViewModel : ViewModel() {
     val currentTime = mutableStateOf(totalTime / 1000) // Tiempo actual en segundos
     private var timer: CountDownTimer? = null
 
+    val recognizedText: LiveData<String> = SharedRepositoryInstance.repository.getRecognizedText()
+
     init {
-        initializeWordStates()
-        startTimer()
+        SharedRepositoryInstance.repository.getRecognizedText().observeForever { newText ->
+            onAnswerChanged(newText)
+        }
+        loadInitialData()
+    }
+    private fun loadInitialData() {
+        repository.getRandomQuestions { result ->
+            when (result) {
+                is Result.PasapalabraQuestionsSuccess -> {
+                    roscoWords.postValue(result.questions)
+                    println(roscoWords.value)
+                    observeRoscoWords()
+                }
+
+                else -> {}
+            }
+        }
+    }
+    private fun observeRoscoWords() {
+        roscoWords.observeForever { words ->
+            if (words != null) {
+                println(words)
+                initializeWordStates()
+                startTimer()
+                _isLoading.postValue(false)
+            }
+        }
     }
 
     private fun startTimer() {
