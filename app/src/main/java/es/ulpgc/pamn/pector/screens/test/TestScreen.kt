@@ -1,3 +1,4 @@
+import android.app.AlertDialog
 import android.media.MediaPlayer
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -8,9 +9,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,6 +42,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import es.ulpgc.pamn.pector.R
+import es.ulpgc.pamn.pector.components.ErrorDialog
 import es.ulpgc.pamn.pector.components.ExperienceBar
 import es.ulpgc.pamn.pector.data.Question
 import es.ulpgc.pamn.pector.data.Result
@@ -57,6 +63,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun TestScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf){
     val viewModel: TestViewModel = viewModel(backStackEntry)
+    viewModel.establishUser(userGlobalConf)
     val testGameState by viewModel.gameState.observeAsState()
     BodyContent(
         navController = navController,
@@ -86,7 +93,12 @@ fun BodyContent(
     ){
         when(testGameState){
             is TestGameState.Loading -> {
-                Text(text = "LOADING...")
+                // ponemos un LinearProgressIndicator circular cargando
+                CircularProgressIndicator(
+                    modifier = Modifier.width(64.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
             }
             is TestGameState.AnsweringQuestion -> {
                 val question = testGameState.question
@@ -112,6 +124,7 @@ fun BodyContent(
                 val earnedPoints = testGameState.earnedPoints
                 var currentXp = user.getXp()
                 var xp by remember { mutableStateOf(currentXp) }
+                var xpToNextLevel = user.getXpToNextLevel()
                 val scope = rememberCoroutineScope() // Create a coroutine scope
 
                 LaunchedEffect(Unit){
@@ -119,6 +132,18 @@ fun BodyContent(
                         fillXpBar(beginXp = currentXp, endXp = (currentXp + earnedPoints)) { progress ->
                             xp = progress
                         }
+                    }
+                }
+
+                if(testGameState.exception != null){
+                    var showDialog = remember { mutableStateOf(true) }
+                    if(showDialog.value == true){
+                        ErrorDialog(
+                            showDialog = showDialog,
+                            title = "ERROR",
+                            message = testGameState.exception.message ?: "",
+                            onDismiss = { showDialog.value = false }
+                        )
                     }
                 }
 
@@ -137,7 +162,7 @@ fun BodyContent(
                     Row(verticalAlignment = Alignment.CenterVertically){
                         ExperienceBar(xp)
                         Spacer(modifier = Modifier.size(7.dp))
-                        Text(text = "$xp/100", color = Color.White, fontSize = 20.sp)
+                        Text(text = "$xp/$xpToNextLevel", color = Color.White, fontSize = 20.sp)
                     }
                     Spacer(modifier = Modifier.size(40.dp))
                     Text(text = "¿Quieres jugar de nuevo?", color = Color.White, fontSize = 20.sp)

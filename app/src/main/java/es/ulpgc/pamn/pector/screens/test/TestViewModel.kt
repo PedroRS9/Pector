@@ -5,13 +5,17 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import es.ulpgc.pamn.pector.data.FirebaseQuestionRepository
+import es.ulpgc.pamn.pector.data.FirebaseUserRepository
 import es.ulpgc.pamn.pector.data.Question
 import es.ulpgc.pamn.pector.data.Result
+import es.ulpgc.pamn.pector.data.User
+import es.ulpgc.pamn.pector.global.UserGlobalConf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class TestViewModel : ViewModel() {
+class TestViewModel(user: User) : ViewModel() {
     private val questionRepository = FirebaseQuestionRepository()
+    private val userRepository = FirebaseUserRepository()
     // we initialize the state with the loading state
     private val _gameState = MutableLiveData<TestGameState>(TestGameState.Loading)
     val gameState: LiveData<TestGameState> = _gameState
@@ -19,6 +23,12 @@ class TestViewModel : ViewModel() {
     private val questions = ArrayList<Question>()
     private var currentQuestionIndex = 0
     private var correctAnswers = 0
+
+    private lateinit var userGlobalConf: UserGlobalConf
+
+    fun establishUser(userGlobalConf: UserGlobalConf){
+        this.userGlobalConf = userGlobalConf
+    }
 
     fun getQuestions(numberOfQuestions: Int, category: String) {
         questionRepository.getRandomQuestions(10, category) { result: Result ->
@@ -47,7 +57,14 @@ class TestViewModel : ViewModel() {
                 _gameState.value = TestGameState.AnsweringQuestion(currentQuestion)
             } else {
                 val earnedPoints = correctAnswers * 7
+                userGlobalConf.currentUser.value!!.addXp(earnedPoints)
                 _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints)
+                userRepository.updateUser(userGlobalConf.currentUser.value!!){result ->
+                    if (result is Result.Error){
+                        _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints, result.exception)
+                        return@updateUser
+                    }
+                }
             }
         }
     }
