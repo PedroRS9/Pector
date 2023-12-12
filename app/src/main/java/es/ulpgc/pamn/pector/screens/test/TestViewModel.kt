@@ -13,7 +13,7 @@ import es.ulpgc.pamn.pector.global.UserGlobalConf
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-class TestViewModel(user: User) : ViewModel() {
+class TestViewModel() : ViewModel() {
     private val questionRepository = FirebaseQuestionRepository()
     private val userRepository = FirebaseUserRepository()
     // we initialize the state with the loading state
