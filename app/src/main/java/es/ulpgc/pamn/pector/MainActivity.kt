@@ -4,27 +4,28 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.speech.RecognizerIntent
+import android.speech.tts.TextToSpeech
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import es.ulpgc.pamn.pector.navigation.AppNavigation
-import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraViewModel
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import java.util.Locale
-import es.ulpgc.pamn.pector.global.SharedRepository
 import es.ulpgc.pamn.pector.global.SharedRepositoryInstance
 
-class MainActivity : ComponentActivity() {
+class MainActivity : ComponentActivity(), TextToSpeech.OnInitListener {
     private lateinit var startVoiceRecognitionActivity: ActivityResultLauncher<Intent>
+    private lateinit var textToSpeech: TextToSpeech
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        textToSpeech = TextToSpeech(this, this)
         startVoiceRecognitionActivity =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 if (result.resultCode == Activity.RESULT_OK && result.data != null) {
@@ -41,7 +42,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    AppNavigation { startVoiceRecognition() }
+                    AppNavigation({ startVoiceRecognition() }, { text -> speakOut(text) })
                 }
             }
         }
@@ -55,5 +56,25 @@ class MainActivity : ComponentActivity() {
         }
         startVoiceRecognitionActivity.launch(intent)
     }
+
+    override fun onInit(status: Int) {
+        if (status == TextToSpeech.SUCCESS) {
+            textToSpeech.language = Locale("es", "ES") // Configura el idioma a español
+        } else {
+            Log.e("TTS", "Inicialización fallida")
+        }
+    }
+    private fun speakOut(text: String) {
+        textToSpeech.speak(text, TextToSpeech.QUEUE_FLUSH, null, "")
+    }
+
+    override fun onDestroy() {
+        if (::textToSpeech.isInitialized) {
+            textToSpeech.stop()
+            textToSpeech.shutdown()
+        }
+        super.onDestroy()
+    }
+
 
 }
