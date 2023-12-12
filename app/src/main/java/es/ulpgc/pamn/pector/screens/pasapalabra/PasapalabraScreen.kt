@@ -32,6 +32,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -69,14 +70,14 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 @Composable
-fun PasapalabraScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf) {
+fun PasapalabraScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf, onVoiceButtonClicked: () -> Unit) {
     val viewModel: PasapalabraViewModel = viewModel()
     val isLoading = viewModel.isLoading.observeAsState(initial = true)
 
     if (isLoading.value) {
         LoadingScreen()
     } else {
-        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel)
+        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked)
     }
 }
 @Composable
@@ -90,9 +91,10 @@ fun LoadingScreen() {
 fun GameContent(
     navController: NavController,
     user: User,
-    viewModel: PasapalabraViewModel
+    viewModel: PasapalabraViewModel,
+    onVoiceButtonClicked: () -> Unit
 ) {
-    BodyContent(navController = navController, user = user, viewModel = viewModel)
+    BodyContent(navController = navController, user = user, viewModel = viewModel, onVoiceButtonClicked)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -100,7 +102,8 @@ fun GameContent(
 fun BodyContent(
     navController: NavController,
     user: User,
-    viewModel: PasapalabraViewModel
+    viewModel: PasapalabraViewModel,
+    onVoiceButtonClicked: () -> Unit
 ) {
     val roscoItems = viewModel.roscoWords.value ?: emptyList()
     val currentIndex = viewModel.currentIndex.value
@@ -190,18 +193,26 @@ fun BodyContent(
         }
         Spacer(modifier = Modifier.height(25.dp))
         // Cuadro de texto para la respuesta y botón de envío
-        OutlinedTextField(
-            value = viewModel.currentAnswer.value,
-            onValueChange = { viewModel.onAnswerChanged(it) },
-            label = { Text("Respuesta", color = Color.White) },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedBorderColor = Color.White, // Color del borde cuando el campo de texto está enfocado
-                unfocusedBorderColor = Color.White, // Color del borde cuando el campo de texto no está enfocado
-                focusedLabelColor = Color.White, // Color del texto del label cuando el campo de texto está enfocado
-                unfocusedLabelColor = Color.White, // Color del texto del label cuando el campo de texto no está enfocado
+        Row(modifier = Modifier.padding(16.dp)) {
+            OutlinedTextField(
+                value = viewModel.currentAnswer.value,
+                onValueChange = { viewModel.onAnswerChanged(it) },
+                label = { Text("Respuesta", color = Color.White) },
+                modifier = Modifier
+                    .weight(1f)
+                    .padding(end = 8.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color.White,
+                    unfocusedBorderColor = Color.White,
+                    focusedLabelColor = Color.White,
+                    unfocusedLabelColor = Color.White,
+                )
             )
-        )
+
+            IconButton(onClick = { onVoiceButtonClicked() }) {
+                Icon(Icons.Filled.Mic, "mic", tint = Color.White)
+            }
+        }
 
         Spacer(modifier = Modifier.height(25.dp))
 
@@ -325,7 +336,8 @@ fun ShowPreviewPasapalabra() {
             BodyContent(
                 navController = rememberNavController(),
                 user = User("PedroRS9", "", "", null, 1, 50),
-                viewModel = PasapalabraViewModel()
+                viewModel = PasapalabraViewModel(),
+                onVoiceButtonClicked = {}
             )
         }
     }

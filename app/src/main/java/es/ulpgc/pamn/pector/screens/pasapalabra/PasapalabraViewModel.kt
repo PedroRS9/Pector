@@ -11,6 +11,7 @@ import es.ulpgc.pamn.pector.navigation.AppScreens
 import java.text.Normalizer
 import es.ulpgc.pamn.pector.data.WordItem
 import es.ulpgc.pamn.pector.data.Result
+import es.ulpgc.pamn.pector.global.SharedRepositoryInstance
 
 class PasapalabraViewModel : ViewModel() {
 
@@ -30,7 +31,12 @@ class PasapalabraViewModel : ViewModel() {
     val currentTime = mutableStateOf(totalTime / 1000) // Tiempo actual en segundos
     private var timer: CountDownTimer? = null
 
+    val recognizedText: LiveData<String> = SharedRepositoryInstance.repository.getRecognizedText()
+
     init {
+        SharedRepositoryInstance.repository.getRecognizedText().observeForever { newText ->
+            onAnswerChanged(newText)
+        }
         loadInitialData()
     }
     private fun loadInitialData() {
