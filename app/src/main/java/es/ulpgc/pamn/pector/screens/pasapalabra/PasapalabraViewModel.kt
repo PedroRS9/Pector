@@ -1,10 +1,12 @@
 package es.ulpgc.pamn.pector.screens.pasapalabra
 
 import android.os.CountDownTimer
+import androidx.compose.runtime.derivedStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import es.ulpgc.pamn.pector.data.FirebasePasapalabraQuestionsStackRepository
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
@@ -16,51 +18,58 @@ import es.ulpgc.pamn.pector.global.SharedRepositoryInstance
 class PasapalabraViewModel : ViewModel() {
 
     private val repository =  FirebasePasapalabraQuestionsStackRepository()
+
     private var _isLoading = MutableLiveData<Boolean>(true)
     val isLoading: LiveData<Boolean> = _isLoading
-
+    private var roscoWordsObserver: Observer<List<WordItem>>? = null
+    private var recognizedTextObserver: Observer<String>? = null
     val currentAnswer = mutableStateOf("")
     val roscoWords = MutableLiveData<List<WordItem>>()
     val currentIndex = mutableStateOf(0)
     val wordStates = mutableStateOf<Map<String, WordAnswerState>>(emptyMap())
+    val currentStatement = derivedStateOf {
+        "Con la ${roscoWords.value?.getOrNull(currentIndex.value)?.word?.first() ?: ""}: ${roscoWords.value?.getOrNull(currentIndex.value)?.description ?: ""}"
+    }
 
     private val _navigationEvent = MutableLiveData<NavigationEvent>()
     val navigationEvent: LiveData<NavigationEvent> = _navigationEvent
 
-    private val totalTime = 20000L // Tiempo total en milisegundos
+    private val totalTime = 30000L // Tiempo total en milisegundos
     val currentTime = mutableStateOf(totalTime / 1000) // Tiempo actual en segundos
     private var timer: CountDownTimer? = null
 
-    val recognizedText: LiveData<String> = SharedRepositoryInstance.repository.getRecognizedText()
 
     init {
-        SharedRepositoryInstance.repository.getRecognizedText().observeForever { newText ->
-            onAnswerChanged(newText)
-        }
         loadInitialData()
     }
+
     private fun loadInitialData() {
         repository.getRandomQuestions { result ->
             when (result) {
                 is Result.PasapalabraQuestionsSuccess -> {
                     roscoWords.postValue(result.questions)
-                    println(roscoWords.value)
                     observeRoscoWords()
                 }
-
                 else -> {}
             }
         }
     }
+
     private fun observeRoscoWords() {
-        roscoWords.observeForever { words ->
+        val wordsObserver = Observer<List<WordItem>> { words ->
             if (words != null) {
-                println(words)
                 initializeWordStates()
                 startTimer()
+                val textObserver = Observer<String> { newText ->
+                    onAnswerChanged(newText)
+                }
+                recognizedTextObserver = textObserver
+                SharedRepositoryInstance.repository.getRecognizedText().observeForever(textObserver)
                 _isLoading.postValue(false)
             }
         }
+        roscoWordsObserver = wordsObserver
+        roscoWords.observeForever(wordsObserver)
     }
 
     private fun startTimer() {
@@ -91,12 +100,16 @@ class PasapalabraViewModel : ViewModel() {
         val points = rawPoints.coerceAtLeast(0)
 
         val route = AppScreens.PasapalabraEndScreen.createRoute(correctAnswers, incorrectAnswers, unanswered, points)
+        SharedRepositoryInstance.repository.updateRecognizedText("")
         _navigationEvent.value = NavigationEvent.Navigate(route)
     }
 
     override fun onCleared() {
+        println("onclear!!!----")
         super.onCleared()
         timer?.cancel() // Asegúrate de cancelar el timer cuando el ViewModel se destruya
+        roscoWordsObserver?.let { roscoWords.removeObserver(it) }
+        recognizedTextObserver?.let { SharedRepositoryInstance.repository.getRecognizedText().removeObserver(it) }
     }
 
     private fun initializeWordStates() {
@@ -107,8 +120,10 @@ class PasapalabraViewModel : ViewModel() {
     fun onAnswerChanged(answer: String) {
         val answer_micro = normalizeString(answer)
         if(answer_micro.equals("pasapalabra", ignoreCase = true)){
+            println("me ejecuto!!!!!!!!!!-------------------ERRORr???-----------------")
             onPasapalabra()
         }else{
+            println("me ejecuto!!!!!!!!!!-------------------BIEEEENNNN??-----------------")
             currentAnswer.value = answer
         }
 
@@ -134,6 +149,7 @@ class PasapalabraViewModel : ViewModel() {
     }
 
     fun onPasapalabra() {
+        println("pasapalabra!!..--")
         moveToNextWord()
     }
 

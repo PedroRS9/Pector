@@ -73,7 +73,7 @@ fun PasapalabraScreen(
     if (isLoading.value) {
         LoadingScreen()
     } else {
-        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked)
+        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked, speakFunction)
     }
 }
 @Composable
@@ -88,9 +88,10 @@ fun GameContent(
     navController: NavController,
     user: User,
     viewModel: PasapalabraViewModel,
-    onVoiceButtonClicked: () -> Unit
+    onVoiceButtonClicked: () -> Unit,
+    speakFunction: (String) -> Unit
 ) {
-    BodyContent(navController = navController, user = user, viewModel = viewModel, onVoiceButtonClicked)
+    BodyContent(navController = navController, user = user, viewModel = viewModel, onVoiceButtonClicked, speakFunction)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -99,12 +100,14 @@ fun BodyContent(
     navController: NavController,
     user: User,
     viewModel: PasapalabraViewModel,
-    onVoiceButtonClicked: () -> Unit
+    onVoiceButtonClicked: () -> Unit,
+    speakFunction: (String) -> Unit
 ) {
     val roscoItems = viewModel.roscoWords.value ?: emptyList()
     val currentIndex = viewModel.currentIndex.value
     val currentWordItem = roscoItems.getOrNull(currentIndex)
     val wordStates = viewModel.wordStates.value
+    val observerCurrentStatement by viewModel.currentStatement
 
     // Observa el tiempo restante del cronómetro
     val currentTime = viewModel.currentTime.value
@@ -113,11 +116,16 @@ fun BodyContent(
     LaunchedEffect(navigationEvent) {
         when (val event = navigationEvent) {
             is NavigationEvent.Navigate -> {
+                speakFunction("");
                 navController.navigate(event.route)
             }
             else -> {}
         }
     }
+    LaunchedEffect(observerCurrentStatement) {
+        speakFunction(observerCurrentStatement)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -339,7 +347,8 @@ fun ShowPreviewPasapalabra() {
                 navController = rememberNavController(),
                 user = User("PedroRS9", "", "", null, 1, 50),
                 viewModel = PasapalabraViewModel(),
-                onVoiceButtonClicked = {}
+                onVoiceButtonClicked = {},
+                speakFunction = {}
             )
         }
     }
