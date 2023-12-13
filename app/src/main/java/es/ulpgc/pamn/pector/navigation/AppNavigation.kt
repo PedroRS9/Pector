@@ -16,10 +16,8 @@ import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraScreen
 import es.ulpgc.pamn.pector.screens.welcomemenu.WelcomeScreen
 @Composable
 fun AppNavigation(onVoiceButtonClicked: () -> Unit, speakFunction: (String) -> Unit) {
-
     val navController = rememberNavController()
     val userGlobalConf = UserGlobalConf()
-
     NavHost(navController = navController, startDestination = AppScreens.WelcomeScreen.route){
         composable(route = AppScreens.WelcomeScreen.route){
             WelcomeScreen(navController)
@@ -36,7 +34,6 @@ fun AppNavigation(onVoiceButtonClicked: () -> Unit, speakFunction: (String) -> U
         composable(route = AppScreens.ProfileScreen.route){ backStackEntry ->
             ProfileScreen(navController, backStackEntry, userGlobalConf)
         }
-
         composable(route = AppScreens.TestLeaderboardScreen.route){ backStackEntry ->
             LeaderboardScreen(navController, backStackEntry, userGlobalConf, "test")
         }

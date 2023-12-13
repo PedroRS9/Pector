@@ -1,11 +1,13 @@
 package es.ulpgc.pamn.pector.screens.leaderboard
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,6 +32,7 @@ import es.ulpgc.pamn.pector.components.PectorButton
 import es.ulpgc.pamn.pector.components.PectorLeaderboard
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.navigation.AppScreens
+import es.ulpgc.pamn.pector.navigation.BottomNavigationBar
 import es.ulpgc.pamn.pector.screens.pasapalabra.BodyContent
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 
@@ -42,12 +45,23 @@ fun LeaderboardScreen(
 ){
     val viewModel: LeaderboardViewModel = viewModel(backStackEntry)
     val leaderboardState by viewModel.leaderboardState.observeAsState()
-    LeaderboardContent(
-        navController = navController,
-        leaderboardState = leaderboardState,
-        downloadLeaderboard = { viewModel.getLeaderboard(gameType) },
-        gameType = gameType
-    )
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { paddingValues ->
+        paddingValues /* TODO: Remove this line. paddingValues should be passed as a parameter */
+        Scaffold(
+            bottomBar = { BottomNavigationBar(navController) }
+        ){
+                paddingValues ->
+            LeaderboardContent(
+                navController = navController,
+                leaderboardState = leaderboardState,
+                downloadLeaderboard = { viewModel.getLeaderboard(gameType) },
+                gameType = gameType,
+                paddingValues = paddingValues
+            )
+        }
+    }
 }
 
 @Composable
@@ -55,7 +69,8 @@ fun LeaderboardContent(
     navController: NavController,
     leaderboardState: Result?,
     downloadLeaderboard: () -> Unit,
-    gameType: String
+    gameType: String,
+    paddingValues: PaddingValues = PaddingValues(0.dp)
 ){
     Column(
         modifier = Modifier.pectorBackground(),
