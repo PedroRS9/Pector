@@ -105,7 +105,13 @@ class PasapalabraViewModel : ViewModel() {
     }
 
     fun onAnswerChanged(answer: String) {
-        currentAnswer.value = answer
+        val answer_micro = normalizeString(answer)
+        if(answer_micro.equals("pasapalabra", ignoreCase = true)){
+            onPasapalabra()
+        }else{
+            currentAnswer.value = answer
+        }
+
     }
 
     fun onSubmitAnswer() {
