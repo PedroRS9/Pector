@@ -1,6 +1,7 @@
 package es.ulpgc.pamn.pector.screens.login
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +20,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -65,8 +68,14 @@ fun BodyContent(navController: NavController,
     var password by remember { mutableStateOf("") }
     val showDialog = remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
+    val focusManager = LocalFocusManager.current
+
     Column(
-        modifier = Modifier.pectorBackground(),
+        modifier = Modifier.pectorBackground().pointerInput(Unit){
+            detectTapGestures(onTap = {
+                focusManager.clearFocus() // Clear focus when user taps outside of a TextField
+            })
+        },
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {

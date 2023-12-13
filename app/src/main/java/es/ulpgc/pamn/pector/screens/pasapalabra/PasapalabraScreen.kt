@@ -2,6 +2,7 @@ package es.ulpgc.pamn.pector.screens.pasapalabra
 
 import android.graphics.Paint
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -42,7 +43,9 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -106,6 +109,7 @@ fun BodyContent(
     // Observa el tiempo restante del cronómetro
     val currentTime = viewModel.currentTime.value
     val navigationEvent by viewModel.navigationEvent.observeAsState()
+    val focusManager = LocalFocusManager.current
     LaunchedEffect(navigationEvent) {
         when (val event = navigationEvent) {
             is NavigationEvent.Navigate -> {
@@ -118,7 +122,12 @@ fun BodyContent(
         modifier = Modifier
             .fillMaxSize()
             .pectorBackground()
-            .padding(16.dp),
+            .padding(16.dp)
+            .pointerInput(Unit){
+                detectTapGestures(onTap = {
+                    focusManager.clearFocus() // Clear focus when user taps outside of a TextField
+                })
+            },
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
