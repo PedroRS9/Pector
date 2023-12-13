@@ -1,19 +1,19 @@
 package es.ulpgc.pamn.pector.screens.mainmenu
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -22,8 +22,10 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -58,6 +60,14 @@ fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEnt
     val user by userGlobalConf.currentUser.observeAsState()
     val viewModel: MainMenuViewModel = viewModel(backStackEntry)
     val imageState by viewModel.imageState.observeAsState()
+    val showDialog = remember { mutableStateOf(false) }
+    BackHandler {
+        showDialog.value = true
+    }
+    if (showDialog.value) {
+        // Función para mostrar el diálogo
+        ConfirmLogoutDialog(showDialog = showDialog, navController)
+    }
     Scaffold(
         bottomBar = { BottomNavigationBar(navController) }
     ) { paddingValues ->
@@ -91,19 +101,11 @@ fun BodyContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .pectorBackground(),
+            .pectorBackground()
+            .padding(top = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Close icon at the top-right corner
-        Box(contentAlignment = Alignment.TopEnd, modifier = Modifier.fillMaxWidth()) {
-            IconButton(onClick = { /* TODO: Handle close action */ }) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Cerrar",
-                    tint = Color.White
-                )
-            }
-        }
+
         PectorProfilePicture(userProfileImage = painter, onClick = { navController.navigate(route = AppScreens.ProfileScreen.route) } )
 
         // User name and level
@@ -205,6 +207,37 @@ fun GameButton(
         }
     }
 }
+
+@Composable
+fun ConfirmLogoutDialog(showDialog: MutableState<Boolean>, navController: NavController, ) {
+    AlertDialog(
+        onDismissRequest = {
+            showDialog.value = false
+        },
+        title = { Text("Confirmación") },
+        text = { Text("¿Deseas cerrar la sesión?") },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    showDialog.value = false
+                    navController.navigate(route = AppScreens.LoginScreen.route)
+                }
+            ) {
+                Text("Sí")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    showDialog.value = false
+                }
+            ) {
+                Text("No")
+            }
+        }
+    )
+}
+
 
 
 

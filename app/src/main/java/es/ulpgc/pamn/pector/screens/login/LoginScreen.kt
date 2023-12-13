@@ -1,5 +1,6 @@
 package es.ulpgc.pamn.pector.screens.login
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -55,6 +56,9 @@ fun LoginScreen(navController: NavController, backStackEntry: NavBackStackEntry,
             userGlobalConf = userGlobalConf
         )
     }
+    BackHandler {
+        navController.navigate(AppScreens.WelcomeScreen.route)
+    }
 }
 @Composable
 fun BodyContent(navController: NavController,
@@ -90,7 +94,13 @@ fun BodyContent(navController: NavController,
         when(loginState) {
             is Result.LoginSuccess -> {
                 userGlobalConf.setUser(loginState.user)
-                navController.navigate(route = AppScreens.MainMenuScreen.route)
+                navController.navigate(AppScreens.MainMenuScreen.route) {
+                    popUpTo(navController.graph.startDestinationId) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+
             }
             is Result.Error -> {
                 errorMessage = loginState.exception.message ?: ""

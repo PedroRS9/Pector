@@ -1,5 +1,6 @@
 import android.app.AlertDialog
 import android.media.MediaPlayer
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -79,6 +80,8 @@ fun TestScreen(navController: NavController, backStackEntry: NavBackStackEntry, 
             testGameState = testGameState,
             mMediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.optionselected)
         )
+    }
+    BackHandler {
     }
 }
 

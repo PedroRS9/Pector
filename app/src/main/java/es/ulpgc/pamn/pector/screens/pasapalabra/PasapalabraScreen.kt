@@ -1,6 +1,7 @@
 package es.ulpgc.pamn.pector.screens.pasapalabra
 
 import android.graphics.Paint
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
@@ -10,16 +11,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +29,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material.icons.filled.VolumeOff
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -39,9 +38,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
@@ -57,7 +60,6 @@ import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.data.WordItem
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
-import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -71,11 +73,19 @@ fun PasapalabraScreen(
     speakFunction: (String) -> Unit) {
     val viewModel: PasapalabraViewModel = viewModel()
     val isLoading = viewModel.isLoading.observeAsState(initial = true)
+    val showDialog = remember { mutableStateOf(false) }
+    BackHandler {
+        showDialog.value = true
+    }
+    if (showDialog.value) {
+        // Función para mostrar el diálogo
+        ConfirmLogoutDialog(showDialog = showDialog, viewModel)
+    }
 
     if (isLoading.value) {
         LoadingScreen()
     } else {
-        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked, speakFunction)
+        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked, speakFunction, showDialog)
     }
 }
 @Composable
@@ -91,9 +101,10 @@ fun GameContent(
     user: User,
     viewModel: PasapalabraViewModel,
     onVoiceButtonClicked: () -> Unit,
-    speakFunction: (String) -> Unit
+    speakFunction: (String) -> Unit,
+    showDialog: MutableState<Boolean>
 ) {
-    BodyContent(navController = navController, user = user, viewModel = viewModel, onVoiceButtonClicked, speakFunction)
+    BodyContent(navController = navController, user = user, viewModel = viewModel, onVoiceButtonClicked, speakFunction, showDialog)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -103,7 +114,8 @@ fun BodyContent(
     user: User,
     viewModel: PasapalabraViewModel,
     onVoiceButtonClicked: () -> Unit,
-    speakFunction: (String) -> Unit
+    speakFunction: (String) -> Unit,
+    showDialog: MutableState<Boolean>
 ) {
     val roscoItems = viewModel.roscoWords.value ?: emptyList()
     val currentIndex = viewModel.currentIndex.value
@@ -154,7 +166,7 @@ fun BodyContent(
         ) {
             // Botón para salir
             IconButton(
-                onClick = { viewModel.finalizeGame() },
+                onClick = { showDialog.value = true },
                 modifier = Modifier.align(Alignment.TopEnd)
             ) {
                 Icon(
@@ -343,6 +355,35 @@ fun RoscoCircular(
         }
     }
 }
+@Composable
+fun ConfirmLogoutDialog(showDialog: MutableState<Boolean>, viewModel: PasapalabraViewModel) {
+    AlertDialog(
+        onDismissRequest = {
+            showDialog.value = false
+        },
+        title = { Text("Confirmación") },
+        text = { Text("¿Deseas finalizar partida?") },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    showDialog.value = false
+                    viewModel.finalizeGame()
+                }
+            ) {
+                Text("Sí")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    showDialog.value = false
+                }
+            ) {
+                Text("No")
+            }
+        }
+    )
+}
 
 
 
@@ -351,7 +392,7 @@ fun RoscoCircular(
 
 
 
-@Preview
+/*@Preview
 @Composable
 fun ShowPreviewPasapalabra() {
     PectorTheme {
@@ -364,8 +405,9 @@ fun ShowPreviewPasapalabra() {
                 user = User("PedroRS9", "", "", null, 1, 50),
                 viewModel = PasapalabraViewModel(),
                 onVoiceButtonClicked = {},
-                speakFunction = {}
+                speakFunction = {},
+                showDialog
             )
         }
     }
-}
+}*/
