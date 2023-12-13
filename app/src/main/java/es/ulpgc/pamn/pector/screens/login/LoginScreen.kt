@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.AlertDialog
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -72,6 +70,35 @@ fun BodyContent(navController: NavController,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
+        if(showDialog.value){
+            ErrorDialog(
+                showDialog = showDialog,
+                title = "Error",
+                message = errorMessage,
+                onDismiss = { showDialog.value = false }
+            )
+        }
+        when(loginState) {
+            is Result.LoginSuccess -> {
+                userGlobalConf.setUser(loginState.user)
+                navController.navigate(route = AppScreens.MainMenuScreen.route)
+            }
+            is Result.Error -> {
+                errorMessage = loginState.exception.message ?: ""
+                showDialog.value = true
+                clearErrors()
+            }
+            is Result.Loading -> {
+                CircularProgressIndicator(
+                    modifier = Modifier.width(100.dp),
+                    color = MaterialTheme.colorScheme.secondary,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                )
+                return
+            }
+            else -> {}
+        }
+
         Image(
             painter = painterResource(R.drawable.pector_logo),
             contentDescription = "Logo de Pector",
@@ -128,31 +155,11 @@ fun BodyContent(navController: NavController,
                 onClick = { navController.navigate(route = AppScreens.SignupScreen.route) },
                 text = stringResource(R.string.button_signup),
             )
+        }
 
-
-        }
-        if(showDialog.value){
-            ErrorDialog(
-                showDialog = showDialog,
-                title = "Error",
-                message = errorMessage,
-                onDismiss = { showDialog.value = false }
-            )
-        }
-        when(loginState) {
-            is Result.LoginSuccess -> {
-                userGlobalConf.setUser(loginState.user)
-                navController.navigate(route = AppScreens.MainMenuScreen.route)
-            }
-            is Result.Error -> {
-                errorMessage = loginState.exception.message ?: ""
-                showDialog.value = true
-                clearErrors()
-            }
-            else -> {}
-        }
     }
 }
+
 @Preview
 @Composable
 fun ShowPreview(){
@@ -166,7 +173,7 @@ fun ShowPreview(){
                 onLogin = { _,_ ->},
                 clearErrors = {},
                 loginState = Result.Success(true),
-                userGlobalConf = viewModel()
+                userGlobalConf = UserGlobalConf()
             )
         }
     }

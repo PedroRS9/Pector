@@ -23,7 +23,7 @@ class LoginViewModel : ViewModel() {
         }
 
         val isEmail = usernameOrEmail.contains("@")
-
+        _loginState.value = Result.Loading
         val userQueryCallback: (User?) -> Unit = { user ->
             if (user == null) {
                 _loginState.postValue(Result.Error(Exception("Usuario no encontrado")))
