@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -48,6 +49,7 @@ import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.components.ErrorDialog
 import es.ulpgc.pamn.pector.components.ExperienceBar
 import es.ulpgc.pamn.pector.data.Result
+import es.ulpgc.pamn.pector.navigation.BottomNavigationBar
 import java.io.ByteArrayOutputStream
 import java.io.InputStream
 
@@ -57,17 +59,22 @@ fun ProfileScreen(navController: NavController, backStackEntry: NavBackStackEntr
     val viewModel: ProfileViewModel = viewModel(backStackEntry)
     val imageState by viewModel.imageState.observeAsState()
     val updateState by viewModel.updateState.observeAsState()
-    BodyContent(
-        navController = navController,
-        user = user ?: User("Error", "", ""),
-        loadImage = { user?.let { viewModel.onLoad(it) } },
-        uploadImage = { filename: String, byteArray: ByteArray, us: User ->
-            viewModel.onChooseImage(filename, byteArray, us)
-        },
-        clearViewModel = { viewModel.clearError()},
-        imageState = imageState,
-        updateState = updateState
-    )
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { paddingValues ->
+        paddingValues /* TODO: Remove this line. paddingValues should be passed as a parameter */
+        BodyContent(
+            navController = navController,
+            user = user ?: User("Error", "", ""),
+            loadImage = { user?.let { viewModel.onLoad(it) } },
+            uploadImage = { filename: String, byteArray: ByteArray, us: User ->
+                viewModel.onChooseImage(filename, byteArray, us)
+            },
+            clearViewModel = { viewModel.clearError()},
+            imageState = imageState,
+            updateState = updateState
+        )
+    }
 }
 
 @Composable

@@ -19,6 +19,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,7 @@ import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.navigation.AppScreens
+import es.ulpgc.pamn.pector.navigation.BottomNavigationBar
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 
 @Composable
@@ -56,12 +58,17 @@ fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEnt
     val user by userGlobalConf.currentUser.observeAsState()
     val viewModel: MainMenuViewModel = viewModel(backStackEntry)
     val imageState by viewModel.imageState.observeAsState()
-    BodyContent(
-        navController = navController,
-        user = user,
-        loadImage = { user?.let { viewModel.onLoad(it) } },
-        imageState = imageState
-    )
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { paddingValues ->
+        paddingValues /* TODO: Remove this line. paddingValues should be passed as a parameter */
+        BodyContent(
+            navController = navController,
+            user = user,
+            loadImage = { user?.let { viewModel.onLoad(it) } },
+            imageState = imageState
+        )
+    }
 }
 
 @Composable

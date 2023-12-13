@@ -37,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -55,6 +56,7 @@ import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.data.WordItem
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
+import es.ulpgc.pamn.pector.navigation.BottomNavigationBar
 import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 import kotlin.math.PI
 import kotlin.math.cos
@@ -70,10 +72,15 @@ fun PasapalabraScreen(
     val viewModel: PasapalabraViewModel = viewModel()
     val isLoading = viewModel.isLoading.observeAsState(initial = true)
 
-    if (isLoading.value) {
-        LoadingScreen()
-    } else {
-        GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked)
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { paddingValues ->
+        paddingValues /* TODO: Remove this line. paddingValues should be passed as a parameter */
+        if (isLoading.value) {
+            LoadingScreen()
+        } else {
+            GameContent(navController, userGlobalConf.currentUser.value!!, viewModel, onVoiceButtonClicked)
+        }
     }
 }
 @Composable

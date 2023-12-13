@@ -17,6 +17,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -50,6 +51,7 @@ import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.navigation.AppScreens
+import es.ulpgc.pamn.pector.navigation.BottomNavigationBar
 import es.ulpgc.pamn.pector.screens.test.TestGameState
 import es.ulpgc.pamn.pector.screens.test.TestViewModel
 import es.ulpgc.pamn.pector.ui.theme.CornflowerBlue
@@ -65,14 +67,19 @@ fun TestScreen(navController: NavController, backStackEntry: NavBackStackEntry, 
     val viewModel: TestViewModel = viewModel(backStackEntry)
     viewModel.establishUser(userGlobalConf)
     val testGameState by viewModel.gameState.observeAsState()
-    BodyContent(
-        navController = navController,
-        user = userGlobalConf.currentUser.value!!,
-        downloadQuestions = { viewModel.getQuestions(10, "test") },
-        onOptionClick = { viewModel.onOptionSelected(it) },
-        testGameState = testGameState,
-        mMediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.optionselected)
-    )
+    Scaffold(
+        bottomBar = { BottomNavigationBar(navController) }
+    ) { paddingValues ->
+        paddingValues /* TODO: Remove this line. paddingValues should be passed as a parameter */
+        BodyContent(
+            navController = navController,
+            user = userGlobalConf.currentUser.value!!,
+            downloadQuestions = { viewModel.getQuestions(10, "test") },
+            onOptionClick = { viewModel.onOptionSelected(it) },
+            testGameState = testGameState,
+            mMediaPlayer = MediaPlayer.create(LocalContext.current, R.raw.optionselected)
+        )
+    }
 }
 
 @Composable

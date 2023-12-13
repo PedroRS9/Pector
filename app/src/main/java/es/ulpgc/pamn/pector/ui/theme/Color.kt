@@ -11,6 +11,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val DarkViolet = Color(0xFF372152)
+val LightViolet = Color(0xFFD6B4FC)
 val LightGrey = Color(0xFFD9D9D9)
 val PectorGradientTop = Color(0xFFD58FBB)
 val PectorGradientBottom = Color(0xFF673AB7)
