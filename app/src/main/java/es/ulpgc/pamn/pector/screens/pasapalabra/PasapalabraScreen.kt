@@ -29,6 +29,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Mic
+import androidx.compose.material.icons.filled.VolumeOff
+import androidx.compose.material.icons.filled.VolumeUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -113,18 +115,25 @@ fun BodyContent(
     val currentTime = viewModel.currentTime.value
     val navigationEvent by viewModel.navigationEvent.observeAsState()
     val focusManager = LocalFocusManager.current
-    LaunchedEffect(navigationEvent) {
+
+    val isVoiceEnabled by viewModel.isVoiceEnabled.observeAsState()
+
+    LaunchedEffect(navigationEvent, observerCurrentStatement, isVoiceEnabled) {
         when (val event = navigationEvent) {
             is NavigationEvent.Navigate -> {
-                speakFunction("");
+                speakFunction("")
                 navController.navigate(event.route)
             }
-            else -> {}
+            else -> {
+                if (isVoiceEnabled == true) {
+                    speakFunction(observerCurrentStatement)
+                } else {
+                    speakFunction("")
+                }
+            }
         }
     }
-    LaunchedEffect(observerCurrentStatement) {
-        speakFunction(observerCurrentStatement)
-    }
+
 
     Column(
         modifier = Modifier
@@ -169,6 +178,13 @@ fun BodyContent(
             )
         }
 
+        IconButton(onClick = { viewModel.toggleVoice() }) {
+            Icon(
+                imageVector = if (isVoiceEnabled!!) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                contentDescription = if (isVoiceEnabled as Boolean) "Desactivar Audio" else "Activar Audio",
+                tint = Color.White // Puedes cambiar el color si es necesario
+            )
+        }
 
         // Rosco circular con un peso para que ocupe la mayor parte de la pantalla
         Box(

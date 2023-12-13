@@ -38,6 +38,8 @@ class PasapalabraViewModel : ViewModel() {
     val currentTime = mutableStateOf(totalTime / 1000) // Tiempo actual en segundos
     private var timer: CountDownTimer? = null
 
+    val isVoiceEnabled = MutableLiveData<Boolean>(true)
+
 
     init {
         loadInitialData()
@@ -53,6 +55,10 @@ class PasapalabraViewModel : ViewModel() {
                 else -> {}
             }
         }
+    }
+    fun toggleVoice() {
+        isVoiceEnabled.value = !isVoiceEnabled.value!!
+        println("isVoiceEnabled: ${isVoiceEnabled.value}") // Solo para depuración
     }
 
     private fun observeRoscoWords() {
@@ -105,7 +111,6 @@ class PasapalabraViewModel : ViewModel() {
     }
 
     override fun onCleared() {
-        println("onclear!!!----")
         super.onCleared()
         timer?.cancel() // Asegúrate de cancelar el timer cuando el ViewModel se destruya
         roscoWordsObserver?.let { roscoWords.removeObserver(it) }
@@ -120,10 +125,8 @@ class PasapalabraViewModel : ViewModel() {
     fun onAnswerChanged(answer: String) {
         val answer_micro = normalizeString(answer)
         if(answer_micro.equals("pasapalabra", ignoreCase = true)){
-            println("me ejecuto!!!!!!!!!!-------------------ERRORr???-----------------")
             onPasapalabra()
         }else{
-            println("me ejecuto!!!!!!!!!!-------------------BIEEEENNNN??-----------------")
             currentAnswer.value = answer
         }
 
@@ -149,7 +152,6 @@ class PasapalabraViewModel : ViewModel() {
     }
 
     fun onPasapalabra() {
-        println("pasapalabra!!..--")
         moveToNextWord()
     }
 
