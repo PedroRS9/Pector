@@ -57,11 +57,12 @@ class TestViewModel() : ViewModel() {
                 _gameState.value = TestGameState.AnsweringQuestion(currentQuestion)
             } else {
                 val earnedPoints = correctAnswers * 7
+                val userBeforeUpdate = userGlobalConf.currentUser.value!!.copy()
                 userGlobalConf.currentUser.value!!.addXp(earnedPoints)
-                _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints)
+                _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints, userBeforeUpdate)
                 userRepository.updateUser(userGlobalConf.currentUser.value!!){result ->
                     if (result is Result.Error){
-                        _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints, result.exception)
+                        _gameState.value = TestGameState.EndGame(correctAnswers, questions.size, earnedPoints, userBeforeUpdate, result.exception)
                         return@updateUser
                     }
                 }

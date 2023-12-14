@@ -457,14 +457,13 @@ fun PectorLeaderboard(leaderboard: List<TopScore>){
 }
 @Composable
 fun ExperienceBar(
-    xp: Int
+    xpPercentage: Float
 ) {
-    val progress = xp.coerceIn(0, 100)
     LinearProgressIndicator(
         modifier = Modifier
             .height(25.dp),
         color = Color(0xFF5EBCF0),
         trackColor = Color.White,
-        progress = progress / 100f
+        progress = xpPercentage
     )
 }

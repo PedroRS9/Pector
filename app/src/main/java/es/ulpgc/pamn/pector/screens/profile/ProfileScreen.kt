@@ -122,7 +122,7 @@ fun BodyContent(
         Text(text = user.getName(), color = Color.White, fontSize = 30.sp, modifier = Modifier.padding(20.dp))
         Text(text = "Nivel ${user.getLevel()}", color = Color.White, fontSize = 20.sp)
         Spacer(modifier = Modifier.height(5.dp))
-        ExperienceBar(user.getXp())
+        ExperienceBar(user.calculateXpPercentage())
         Spacer(modifier = Modifier.height(40.dp))
         Box(
             modifier = Modifier
