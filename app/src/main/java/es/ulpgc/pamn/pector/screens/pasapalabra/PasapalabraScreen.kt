@@ -49,6 +49,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
@@ -129,6 +130,8 @@ fun BodyContent(
     val focusManager = LocalFocusManager.current
 
     val isVoiceEnabled by viewModel.isVoiceEnabled.observeAsState()
+
+    val context = LocalContext.current
 
     LaunchedEffect(navigationEvent, observerCurrentStatement, isVoiceEnabled) {
         when (val event = navigationEvent) {
@@ -274,7 +277,7 @@ fun BodyContent(
             Spacer(modifier = Modifier.width(16.dp)) // Espacio entre botones
             // Botón "Enviar respuesta"
             Button(
-                onClick = { viewModel.onSubmitAnswer() },
+                onClick = { viewModel.onSubmitAnswer(context) },
                 // Establece el color del botón para la acción de "enviar"
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                 modifier = Modifier

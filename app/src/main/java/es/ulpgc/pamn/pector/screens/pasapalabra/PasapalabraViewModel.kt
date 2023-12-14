@@ -1,5 +1,7 @@
 package es.ulpgc.pamn.pector.screens.pasapalabra
 
+import android.content.Context
+import android.media.MediaPlayer
 import android.os.CountDownTimer
 import androidx.compose.runtime.derivedStateOf
 import androidx.lifecycle.ViewModel
@@ -7,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.data.FirebasePasapalabraQuestionsStackRepository
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
@@ -40,9 +43,39 @@ class PasapalabraViewModel : ViewModel() {
 
     val isVoiceEnabled = MutableLiveData<Boolean>(true)
 
+    private var mediaPlayerCorrect: MediaPlayer? = null
+    private var mediaPlayerIncorrect: MediaPlayer? = null
+
 
     init {
         loadInitialData()
+    }
+
+    fun playCorrectAnswerSound(context: Context) {
+        if (mediaPlayerCorrect == null) {
+            mediaPlayerCorrect = MediaPlayer.create(context, R.raw.correct_sound)
+        }
+
+        mediaPlayerCorrect?.apply {
+            if (isPlaying) {
+                stop()
+                prepare()
+            }
+            start()
+        }
+    }
+    fun playIncorrectAnswerSound(context: Context) {
+        if (mediaPlayerIncorrect == null) {
+            mediaPlayerIncorrect = MediaPlayer.create(context, R.raw.incorrect_sound)
+        }
+
+        mediaPlayerIncorrect?.apply {
+            if (isPlaying) {
+                stop()
+                prepare()
+            }
+            start()
+        }
     }
 
     private fun loadInitialData() {
@@ -132,7 +165,7 @@ class PasapalabraViewModel : ViewModel() {
 
     }
 
-    fun onSubmitAnswer() {
+    fun onSubmitAnswer(context: Context) {
         val currentWord = normalizeString(roscoWords.value!![currentIndex.value].word)
         val userAnswer = normalizeString(currentAnswer.value)
         val isCorrect = userAnswer.equals(currentWord, ignoreCase = true)
@@ -142,14 +175,21 @@ class PasapalabraViewModel : ViewModel() {
         wordStates.value = wordStates.value.toMutableMap().apply {
             put(roscoWords.value!![currentIndex.value].word, newState)
         }
-        if (wordStates.value.all { it.value != WordAnswerState.Unanswered }) {
 
-            finalizeGame()
-        }else{
-            moveToNextWord()
+        if (isCorrect) {
+            playCorrectAnswerSound(context)
+        } else {
+            playIncorrectAnswerSound(context) // Reproduce el sonido de respuesta incorrecta si es incorrecta
         }
 
+        if (wordStates.value.all { it.value != WordAnswerState.Unanswered }) {
+            finalizeGame()
+        } else {
+            moveToNextWord()
+        }
     }
+
+
 
     fun onPasapalabra() {
         moveToNextWord()
