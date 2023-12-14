@@ -164,7 +164,9 @@ fun PectorButton(
         shape = RoundedCornerShape(50),
         colors = ButtonDefaults.buttonColors(containerColor = DarkViolet)
     ) {
-        Text(text = text)
+        Text(text = text,
+            color = Color.White
+        )
     }
 }
 

@@ -87,8 +87,7 @@ fun BodyContent(navController: NavController,
             painter = painterResource(R.drawable.pector_logo),
             contentDescription = stringResource(R.string.pector_logo_description),
             modifier = Modifier
-                .padding(10.dp)
-                .size(300.dp)
+                .size(200.dp)
         )
         PectorTextField(
             value = username,

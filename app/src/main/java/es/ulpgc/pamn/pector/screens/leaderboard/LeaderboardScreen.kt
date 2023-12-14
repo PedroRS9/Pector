@@ -1,11 +1,13 @@
 package es.ulpgc.pamn.pector.screens.leaderboard
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -16,7 +18,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +28,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.data.Result
 import es.ulpgc.pamn.pector.data.TopScore
@@ -68,7 +73,9 @@ fun LeaderboardContent(
     paddingValues: PaddingValues = PaddingValues(0.dp)
 ){
     Column(
-        modifier = Modifier.pectorBackground(),
+        modifier = Modifier
+            .pectorBackground()
+            .padding(start = 5.dp, end = 5.dp, top = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         val leaderboard = when (leaderboardState) {
@@ -80,12 +87,21 @@ fun LeaderboardContent(
             downloadLeaderboard()
         }
 
-        Text(
-            text = gameType.uppercase(),
-            style = MaterialTheme.typography.bodyLarge,
-            fontSize = 40.sp,
-            modifier = Modifier.padding(20.dp)
+        val gameImage = when (gameType) {
+            "pasapalabra" -> R.drawable.pasapalabra // Reemplaza con el recurso de imagen correcto
+            "test" -> R.drawable.test_image // Reemplaza con el recurso de imagen correcto
+            else -> R.drawable.game5 // Imagen predeterminada para otros juegos
+        }
+
+        Image(
+            painter = painterResource(id = gameImage),
+            contentDescription = null,
+            modifier = Modifier
+                .size(width = 250.dp, height = 200.dp)
+                .clip(RoundedCornerShape(12.dp)) // Aplicar esquinas redondeadas
+                .padding(8.dp)
         )
+
 
         PectorButton(
             text = "JUGAR",
@@ -101,7 +117,7 @@ fun LeaderboardContent(
             modifier = Modifier.fillMaxSize()
         )
 
-        Spacer(modifier = Modifier.size(20.dp))
+        Spacer(modifier = Modifier.size(10.dp))
         PectorLeaderboard(leaderboard)
     }
 }

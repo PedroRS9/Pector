@@ -154,52 +154,52 @@ fun BodyContent(
         modifier = Modifier
             .fillMaxSize()
             .pectorBackground()
-            .padding(16.dp)
             .pointerInput(Unit){
                 detectTapGestures(onTap = {
                     focusManager.clearFocus() // Clear focus when user taps outside of a TextField
                 })
-            },
+            }
+            .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 16.dp, end = 16.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Top
         ) {
-            // Botón para salir
+
             IconButton(
-                onClick = { showDialog.value = true },
-                modifier = Modifier.align(Alignment.TopEnd)
+                onClick = { viewModel.toggleVoice() }
+            ) {
+                Icon(
+                    imageVector = if (isVoiceEnabled!!) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                    contentDescription = if (isVoiceEnabled as Boolean) "Desactivar Audio" else "Activar Audio",
+                    tint = Color.White
+                )
+            }
+
+            Text(
+                text = "${currentTime}s",
+                style = TextStyle(
+                    color = Color.White,
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold
+                ),
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+
+
+            IconButton(
+                onClick = { showDialog.value = true }
             ) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = "Salir",
-                    tint = Color.White // Establece el color del icono a blanco
+                    tint = Color.White
                 )
             }
-
-            // Cronómetro
-            Text(
-                text = "${currentTime}s", // Muestra el tiempo en segundos
-                style = TextStyle(
-                    color = Color.White,
-                    fontSize = 24.sp, // Aumenta el tamaño de la fuente para hacer el cronómetro más grande
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(start = 16.dp)
-            )
         }
 
-        IconButton(onClick = { viewModel.toggleVoice() }) {
-            Icon(
-                imageVector = if (isVoiceEnabled!!) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                contentDescription = if (isVoiceEnabled as Boolean) "Desactivar Audio" else "Activar Audio",
-                tint = Color.White // Puedes cambiar el color si es necesario
-            )
-        }
 
         // Rosco circular con un peso para que ocupe la mayor parte de la pantalla
         Box(
@@ -217,31 +217,27 @@ fun BodyContent(
         // Cuadro para la pista con bordes redondeados y color de fondo
         Surface(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 32.dp), // Añade un poco de padding horizontal
+                .fillMaxWidth(), // Añade un poco de padding horizontal
             color = Color(0xFFE1BEE7), // El color de fondo del cuadro de la pista, cambia al color morado que prefieras
             shape = RoundedCornerShape(8.dp) // Redondea las esquinas
         ) {
             Text(
                 text = "Con la ${currentWordItem?.word?.first() ?: ""}: ${currentWordItem?.description ?: ""}",
-                modifier = Modifier
-                    .padding(16.dp), // Añade padding dentro del cuadro para el texto
+                modifier = Modifier, // Añade padding dentro del cuadro para el texto
                 style = TextStyle(
                     color = Color.Black, // Cambia el color del texto si es necesario
                     fontSize = 18.sp // Cambia el tamaño del texto si es necesario
                 )
             )
         }
-        Spacer(modifier = Modifier.height(25.dp))
         // Cuadro de texto para la respuesta y botón de envío
-        Row(modifier = Modifier.padding(16.dp)) {
+        Row(modifier = Modifier.padding(vertical = 8.dp)) {
             OutlinedTextField(
                 value = viewModel.currentAnswer.value,
                 onValueChange = { viewModel.onAnswerChanged(it) },
                 label = { Text("Respuesta", color = Color.White) },
                 modifier = Modifier
-                    .weight(1f)
-                    .padding(end = 8.dp),
+                    .weight(1f),
                 colors = OutlinedTextFieldDefaults.colors(
                     focusedBorderColor = Color.White,
                     unfocusedBorderColor = Color.White,
@@ -255,40 +251,34 @@ fun BodyContent(
             }
         }
 
-        Spacer(modifier = Modifier.height(25.dp))
 
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center // Centra los botones en la fila
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
         ) {
             // Botón "Pasapalabra"
             Button(
                 onClick = { viewModel.onPasapalabra() },
-                // Establece el color del botón para la acción de "pasar"
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
                 modifier = Modifier
-                    .padding(4.dp) // Agrega espacio alrededor del botón
-                    .defaultMinSize(minWidth = 128.dp) // Establece un ancho mínimo para el botón
+                    .weight(1f) // Usa weight para distribuir el espacio disponible equitativamente
+                    .padding(horizontal = 8.dp) // Agrega espacio alrededor del botón
             ) {
                 Text("Pasapalabra", color = Color.Black)
             }
-            Spacer(modifier = Modifier.width(16.dp)) // Espacio entre botones
+
             // Botón "Enviar respuesta"
             Button(
                 onClick = { viewModel.onSubmitAnswer(context) },
-                // Establece el color del botón para la acción de "enviar"
                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
                 modifier = Modifier
-                    .padding(4.dp) // Agrega espacio alrededor del botón
-                    .defaultMinSize(minWidth = 128.dp) // Establece un ancho mínimo para el botón
+                    .weight(1f) // Usa weight para distribuir el espacio disponible equitativamente
+                    .padding(horizontal = 8.dp) // Agrega espacio alrededor del botón
             ) {
-                Text("Enviar respuesta", color = Color.White)
+                Text("Responder", color = Color.White)
             }
-
         }
-        Spacer(modifier = Modifier.height(25.dp))
+
     }
 }
 

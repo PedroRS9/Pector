@@ -200,8 +200,8 @@ fun GameButton(
 
     Box(
         modifier = Modifier
-            .padding(8.dp)
-            .size(width = 200.dp, height = 120.dp) // Dimensiones más rectangulares
+            .padding(4.dp)
+            .size(width = 150.dp, height = 90.dp) // Dimensiones más rectangulares
             .clip(RoundedCornerShape(12.dp)) // Esquinas redondeadas
             .background(Color.Transparent) // Fondo transparente
             .clickable(

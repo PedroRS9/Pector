@@ -120,10 +120,9 @@ fun BodyContent(navController: NavController,
 
         Image(
             painter = painterResource(R.drawable.pector_logo),
-            contentDescription = "Logo de Pector",
+            contentDescription = stringResource(R.string.pector_logo_description),
             modifier = Modifier
-                .padding(10.dp)
-                .size(300.dp)
+                .size(200.dp)
         )
         PectorTextField(
             value = username,
@@ -141,8 +140,6 @@ fun BodyContent(navController: NavController,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .padding(20.dp)
-                .padding(start = 30.dp)
         ) {
             PectorButton(
                 onClick = { onLogin(username, password) },
@@ -152,7 +149,7 @@ fun BodyContent(navController: NavController,
             PectorClickableText(
                 text = stringResource(R.string.forgot_password_text),
                 onClick = {},
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier,
                 fontSize = 16.sp
             )
         }
@@ -160,13 +157,11 @@ fun BodyContent(navController: NavController,
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
-                .padding(20.dp)
-                .padding(start = 30.dp)
         ) {
             PectorClickableText(
                 text = stringResource(R.string.no_acc_text),
                 onClick = {},
-                modifier = Modifier.padding(start = 8.dp),
+                modifier = Modifier,
                 fontSize = 16.sp
             )
 

@@ -126,7 +126,7 @@ fun BodyContent(
         Spacer(modifier = Modifier.height(40.dp))
         Box(
             modifier = Modifier
-                .size(330.dp)
+                .size(250.dp)
                 .clip(RoundedCornerShape(20.dp))
                 .background(Color(0xFF382155)),
             contentAlignment = Alignment.TopCenter
