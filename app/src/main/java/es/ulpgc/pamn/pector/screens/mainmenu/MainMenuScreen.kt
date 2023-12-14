@@ -1,6 +1,7 @@
 package es.ulpgc.pamn.pector.screens.mainmenu
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -36,9 +37,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -191,23 +194,39 @@ fun GameButton(
     gameImage: Int, // ID de recurso de la imagen
     onGameClicked: () -> Unit
 ) {
+    var clicked by remember { mutableStateOf(false) }
+
+    val sizeModifier = if (clicked) Modifier.scale(1.1f) else Modifier
+
     Box(
         modifier = Modifier
             .padding(8.dp)
             .size(width = 200.dp, height = 120.dp) // Dimensiones más rectangulares
             .clip(RoundedCornerShape(12.dp)) // Esquinas redondeadas
             .background(Color.Transparent) // Fondo transparente
-            .clickable(onClick = onGameClicked) // Acción de clic
+            .clickable(
+                onClick = {
+                    clicked = true
+                    onGameClicked()
+                }
+            ) // Acción de clic
             .border(2.dp, Color.White, RoundedCornerShape(12.dp))
+            .then(sizeModifier.animateContentSize()) // Aplica la animación al tamaño
     ) {
-        Image(
-            painter = painterResource(id = gameImage),
-            contentDescription = null, // Sin descripción de contenido
-            contentScale = ContentScale.Crop, // Escala la imagen para llenar el rectángulo
-            modifier = Modifier.matchParentSize() // Llena la Box con la imagen
-        )
+        Box(
+            modifier = Modifier.matchParentSize()
+        ) {
+            Image(
+                painter = painterResource(id = gameImage),
+                contentDescription = null, // Sin descripción de contenido
+                contentScale = ContentScale.Crop, // Escala la imagen para llenar el rectángulo
+                modifier = Modifier.matchParentSize() // Llena la Box con la imagen
+            )
+        }
     }
 }
+
+
 
 
 
