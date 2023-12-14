@@ -294,6 +294,7 @@ fun BodyContent(
             val scope = rememberCoroutineScope() // Create a coroutine scope
 
             LaunchedEffect(Unit){
+                speakFunction("")
                 scope.launch {
                     fillXpBar(beginXp = currentXp, endXp = (currentXp + points)) { progress ->
                         if(progress != currentXp) userBeforeUpdate.addXp(1)
