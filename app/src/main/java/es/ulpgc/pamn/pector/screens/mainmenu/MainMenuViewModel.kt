@@ -9,10 +9,17 @@ import es.ulpgc.pamn.pector.data.Result
 import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 
-class MainMenuViewModel(private val userGlobalConf: UserGlobalConf) : ViewModel() {
+class MainMenuViewModel() : ViewModel() {
     private val imageRepository: ImageRepository = FirebaseImageRepository()
     private val _imageState = MutableLiveData<Result>()
     val imageState: LiveData<Result> = _imageState
+
+    private lateinit var userGlobalConf: UserGlobalConf
+
+    fun setUserGlobalConf(userGlobalConf: UserGlobalConf){
+        this.userGlobalConf = userGlobalConf
+    }
+
     fun checkIfPictureIsDownloaded(){
         val user = userGlobalConf.currentUser.value!!
         val userHasProfilePicture = user.getPictureURL() != null

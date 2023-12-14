@@ -11,7 +11,7 @@ import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.data.UserRepository
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 
-class ProfileViewModel(private val userGlobalConf: UserGlobalConf) : ViewModel() {
+class ProfileViewModel() : ViewModel() {
 
     private val imageRepository: ImageRepository = FirebaseImageRepository()
     private val _imageState = MutableLiveData<Result>()
@@ -20,6 +20,12 @@ class ProfileViewModel(private val userGlobalConf: UserGlobalConf) : ViewModel()
     private val userRepository: UserRepository = FirebaseUserRepository()
     private val _updateState = MutableLiveData<Result>()
     val updateState: LiveData<Result> = _updateState
+
+    private lateinit var userGlobalConf: UserGlobalConf
+
+    fun setUserGlobalConf(userGlobalConf: UserGlobalConf){
+        this.userGlobalConf = userGlobalConf
+    }
 
     fun onChooseImage(filename: String, byteArray: ByteArray, user: User){
         imageRepository.uploadImage(filename, byteArray){ result: Result ->

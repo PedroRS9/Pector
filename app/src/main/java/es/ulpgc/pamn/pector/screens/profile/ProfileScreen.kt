@@ -56,7 +56,8 @@ import java.io.InputStream
 @Composable
 fun ProfileScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf){
     val user by userGlobalConf.currentUser.observeAsState()
-    val viewModel: ProfileViewModel = ProfileViewModel(userGlobalConf)
+    val viewModel: ProfileViewModel = viewModel(backStackEntry)
+    viewModel.setUserGlobalConf(userGlobalConf)
     LaunchedEffect(Unit){
         viewModel.checkIfPictureIsDownloaded()
     }

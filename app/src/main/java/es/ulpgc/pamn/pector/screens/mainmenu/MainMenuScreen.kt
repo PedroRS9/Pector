@@ -58,7 +58,8 @@ import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 @Composable
 fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf) {
     val user by userGlobalConf.currentUser.observeAsState()
-    val viewModel = MainMenuViewModel(userGlobalConf)
+    val viewModel: MainMenuViewModel = viewModel(backStackEntry)
+    viewModel.setUserGlobalConf(userGlobalConf)
     LaunchedEffect(Unit){
         viewModel.checkIfPictureIsDownloaded()
     }
