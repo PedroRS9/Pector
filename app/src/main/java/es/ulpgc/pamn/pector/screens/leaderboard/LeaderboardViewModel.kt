@@ -26,7 +26,7 @@ class LeaderboardViewModel : ViewModel() {
         }
     }
 
-    fun onLeaderboardDownloaded() {
+    private fun onLeaderboardDownloaded() {
         val topScores = (_leaderboardState.value as Result.LeaderboardSuccess).leaderboard
         for (topScore in topScores) {
             userRepository.findUserByUsername(topScore.username) {

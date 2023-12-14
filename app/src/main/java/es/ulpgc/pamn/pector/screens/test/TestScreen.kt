@@ -319,7 +319,7 @@ fun ShowPreview(){
             )
             BodyContent(
                 navController = rememberNavController(),
-                user = User("PedroRS9", "", "", null, 1, 50),
+                user = User("PedroRS9", "", "", null, null, 1, 50),
                 downloadQuestions = {},
                 onOptionClick = {},
                 testGameState = TestGameState.EndGame(5, 10, 35),

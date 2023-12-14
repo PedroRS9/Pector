@@ -56,7 +56,10 @@ import java.io.InputStream
 @Composable
 fun ProfileScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf){
     val user by userGlobalConf.currentUser.observeAsState()
-    val viewModel: ProfileViewModel = viewModel(backStackEntry)
+    val viewModel: ProfileViewModel = ProfileViewModel(userGlobalConf)
+    LaunchedEffect(Unit){
+        viewModel.checkIfPictureIsDownloaded()
+    }
     val imageState by viewModel.imageState.observeAsState()
     val updateState by viewModel.updateState.observeAsState()
     Scaffold(
@@ -66,7 +69,6 @@ fun ProfileScreen(navController: NavController, backStackEntry: NavBackStackEntr
         BodyContent(
             navController = navController,
             user = user ?: User("Error", "", ""),
-            loadImage = { user?.let { viewModel.onLoad(it) } },
             uploadImage = { filename: String, byteArray: ByteArray, us: User ->
                 viewModel.onChooseImage(filename, byteArray, us)
             },
@@ -81,13 +83,11 @@ fun ProfileScreen(navController: NavController, backStackEntry: NavBackStackEntr
 fun BodyContent(
     navController: NavController,
     user: User,
-    loadImage: () -> Unit,
     uploadImage: (String, ByteArray, User) -> Unit,
     clearViewModel: () -> Unit,
     imageState: Result?,
     updateState: Result?
 ){
-    //var painter = rememberAsyncImagePainter(R.drawable.ic_profile_picture)
     val painter = when (imageState) {
         is Result.ImageSuccess -> {
             rememberAsyncImagePainter(imageState.bytes)
@@ -97,9 +97,6 @@ fun BodyContent(
     val showDialog = remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf("") }
     val context = LocalContext.current
-    LaunchedEffect(Unit) {
-        loadImage()
-    }
     Column(
         modifier = Modifier.pectorBackground(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -173,11 +170,10 @@ fun ShowPreview(){
         ) {
             BodyContent(
                 navController = rememberNavController(),
-                user = User("PedroRS9", "", "", null, 1, 50),
+                user = User("PedroRS9", "", "", null, null,1, 50),
                 imageState = null,
                 updateState = null,
                 clearViewModel = {},
-                loadImage = {},
                 uploadImage = { _, _, _ -> }
             )
         }

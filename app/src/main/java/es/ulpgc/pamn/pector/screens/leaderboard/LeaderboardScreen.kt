@@ -49,18 +49,13 @@ fun LeaderboardScreen(
         bottomBar = { BottomNavigationBar(navController) }
     ) { paddingValues ->
         paddingValues /* TODO: Remove this line. paddingValues should be passed as a parameter */
-        Scaffold(
-            bottomBar = { BottomNavigationBar(navController) }
-        ){
-                paddingValues ->
-            LeaderboardContent(
-                navController = navController,
-                leaderboardState = leaderboardState,
-                downloadLeaderboard = { viewModel.getLeaderboard(gameType) },
-                gameType = gameType,
-                paddingValues = paddingValues
-            )
-        }
+        LeaderboardContent(
+            navController = navController,
+            leaderboardState = leaderboardState,
+            downloadLeaderboard = { viewModel.getLeaderboard(gameType) },
+            gameType = gameType,
+            paddingValues = paddingValues
+        )
     }
 }
 
