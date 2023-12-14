@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -80,7 +81,7 @@ fun BodyContent(navController: NavController,
                 focusManager.clearFocus() // Clear focus when user taps outside of a TextField
             })
         },
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = if(loginState is Result.Loading) Arrangement.Center else Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         if(showDialog.value){
@@ -118,6 +119,7 @@ fun BodyContent(navController: NavController,
             else -> {}
         }
 
+        Spacer(modifier = Modifier.size(90.dp))
         Image(
             painter = painterResource(R.drawable.pector_logo),
             contentDescription = stringResource(R.string.pector_logo_description),
