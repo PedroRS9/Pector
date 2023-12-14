@@ -55,8 +55,8 @@ fun BodyContent(navController: NavController) {
             painter = painterResource(R.drawable.pector_logo),
             contentDescription = stringResource(R.string.pector_logo_description),
             modifier = Modifier
-                .padding(40.dp)
-                .size(150.dp)
+                .padding(10.dp)
+                .size(300.dp)
         )
 
         Text(
