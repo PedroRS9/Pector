@@ -2,12 +2,18 @@ package es.ulpgc.pamn.pector.screens.mainmenu
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -32,7 +38,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -129,36 +137,40 @@ fun BodyContent(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                GameButton(gameName = "Pasapalabra",
-                    onInfoClicked = { /* TODO: Handle info action */ },
+                GameButton(
+                    gameImage = R.drawable.pasapalabra,
                     onGameClicked = { navController.navigate(AppScreens.PasapalabraLeaderboardScreen.route)}
                 )
             }
             item {
-                GameButton(gameName = "Muerte súbita", onInfoClicked = { /* TODO: Handle info action */ }) {
-                    // TODO: Handle game button click
-                }
-            }
-            item {
-                GameButton(gameName = "1vs1", onInfoClicked = { /* TODO: Handle info action */ }) {
-                    // TODO: Handle game button click
-                }
-            }
-            item {
-                GameButton(gameName = "Test",
-                    onInfoClicked = { /* TODO: Handle info action */ },
-                    onGameClicked = { navController.navigate(AppScreens.TestLeaderboardScreen.route)}
+                GameButton(
+                    gameImage = R.drawable.test_image,
+                    onGameClicked = { navController.navigate(AppScreens.TestLeaderboardScreen.route) }
                 )
             }
             item {
-                GameButton(gameName = "Crucigrama", onInfoClicked = { /* TODO: Handle info action */ }) {
-                    // TODO: Handle game button click
-                }
+                GameButton(
+                    gameImage = R.drawable.chess_game,
+                    onGameClicked = {}
+                )
             }
             item {
-                GameButton(gameName = "?", onInfoClicked = { /* TODO: Handle info action */ }) {
-                    // TODO: Handle game button click
-                }
+                GameButton(
+                    gameImage = R.drawable.game3,
+                    onGameClicked = {}
+                )
+            }
+            item {
+                GameButton(
+                    gameImage = R.drawable.game4,
+                    onGameClicked = {}
+                )
+            }
+            item {
+                GameButton(
+                    gameImage = R.drawable.game5,
+                    onGameClicked = {}
+                )
             }
         }
 
@@ -176,37 +188,29 @@ fun BodyContent(
 
 @Composable
 fun GameButton(
-    gameName: String,
-    onInfoClicked: () -> Unit,
+    gameImage: Int, // ID de recurso de la imagen
     onGameClicked: () -> Unit
 ) {
-    OutlinedButton(
-        shape = RoundedCornerShape(12.dp),
-        onClick = onGameClicked,
-        modifier = Modifier.padding(8.dp),
-        border = BorderStroke(2.dp, Color.White),
-        colors = ButtonDefaults.outlinedButtonColors(
-            contentColor = Color.White
-        )
+    Box(
+        modifier = Modifier
+            .padding(8.dp)
+            .size(width = 200.dp, height = 120.dp) // Dimensiones más rectangulares
+            .clip(RoundedCornerShape(12.dp)) // Esquinas redondeadas
+            .background(Color.Transparent) // Fondo transparente
+            .clickable(onClick = onGameClicked) // Acción de clic
+            .border(2.dp, Color.White, RoundedCornerShape(12.dp))
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = gameName,
-                color = Color.White,
-                fontWeight = FontWeight.Bold
-            )
-            IconButton(onClick = onInfoClicked) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Información",
-                    tint = Color.White
-                )
-            }
-        }
+        Image(
+            painter = painterResource(id = gameImage),
+            contentDescription = null, // Sin descripción de contenido
+            contentScale = ContentScale.Crop, // Escala la imagen para llenar el rectángulo
+            modifier = Modifier.matchParentSize() // Llena la Box con la imagen
+        )
     }
 }
+
+
+
 
 @Composable
 fun ConfirmLogoutDialog(showDialog: MutableState<Boolean>, navController: NavController, ) {
