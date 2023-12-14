@@ -1,13 +1,5 @@
 package es.ulpgc.pamn.pector.data
 
-import android.content.res.Resources
-import android.graphics.Bitmap
-import androidx.core.content.res.ResourcesCompat
-import androidx.core.graphics.drawable.toBitmap
-import coil.compose.AsyncImagePainter
-import es.ulpgc.pamn.pector.R
-import java.io.ByteArrayOutputStream
-import java.io.InputStream
 import kotlin.math.pow
 
 class User(
@@ -33,10 +25,26 @@ class User(
     }
     fun getLevel() = level
     fun getXp() = xp
+    fun setXp(xp: Int) {
+        this.xp = xp
+    }
 
+    fun getMinimumXpForCurrentLevel(): Int{
+        return ( (level-1) / 0.1).pow(2.0).toInt()
+    }
     fun getXpToNextLevel(): Int{
         return (level / 0.1).pow(2.0).toInt()
     }
+
+    fun calculateXpPercentage(): Float {
+        val minXP = getMinimumXpForCurrentLevel()
+        val maxXP = getXpToNextLevel()
+        val userXp = getXp()
+        if (userXp >= maxXP) return 1.0f // 100%
+        if (userXp <= minXP) return 0.0f // 0%
+        return (userXp - minXP).toFloat() / (maxXP - minXP).toFloat()
+    }
+
 
     fun hasProfilePicture(): Boolean{
         return picture != null
@@ -51,11 +59,15 @@ class User(
      */
     fun addXp(xp: Int): Boolean{
         this.xp += xp
-        if (xp >= getXpToNextLevel()){
+        if (this.xp >= getXpToNextLevel()){
             level++
             return true
         }
         return false
+    }
+
+    fun copy(): User {
+        return User(name, password, email, pictureURL, picture, level, xp)
     }
 
 }

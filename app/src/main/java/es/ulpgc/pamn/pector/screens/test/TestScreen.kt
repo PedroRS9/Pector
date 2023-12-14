@@ -1,8 +1,6 @@
-import android.app.AlertDialog
 import android.media.MediaPlayer
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,11 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -47,8 +43,8 @@ import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.components.ErrorDialog
 import es.ulpgc.pamn.pector.components.ExperienceBar
 import es.ulpgc.pamn.pector.data.Question
-import es.ulpgc.pamn.pector.data.Result
 import es.ulpgc.pamn.pector.data.User
+import es.ulpgc.pamn.pector.extensions.fillXpBar
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.navigation.AppScreens
@@ -132,15 +128,17 @@ fun BodyContent(
                 val correctAnswers = testGameState.correctAnswers
                 val totalQuestions = testGameState.totalQuestions
                 val earnedPoints = testGameState.earnedPoints
-                var currentXp = user.getXp()
-                var xp by remember { mutableStateOf(currentXp) }
-                var xpToNextLevel = user.getXpToNextLevel()
+                var userBeforeUpdate by remember { mutableStateOf(testGameState.userBeforeUpdate) }
+                var userXpPercentage by remember { mutableStateOf(userBeforeUpdate.calculateXpPercentage()) }
+                val currentXp = userBeforeUpdate.getXp()
                 val scope = rememberCoroutineScope() // Create a coroutine scope
 
                 LaunchedEffect(Unit){
                     scope.launch {
                         fillXpBar(beginXp = currentXp, endXp = (currentXp + earnedPoints)) { progress ->
-                            xp = progress
+                            if(progress != currentXp) userBeforeUpdate.addXp(1)
+                            userXpPercentage = userBeforeUpdate.calculateXpPercentage()
+                            println("userXpPercentage: $userXpPercentage, progress: $progress, xp: ${userBeforeUpdate.getXp()}")
                         }
                     }
                 }
@@ -168,11 +166,11 @@ fun BodyContent(
                     Text(text = "PREGUNTAS CORRECTAS: $correctAnswers de $totalQuestions", color = Color.White, fontSize = 20.sp)
                     Text(text = "PUNTOS GANADOS: $earnedPoints", color = Color.White, fontSize = 20.sp)
                     Spacer(modifier = Modifier.size(40.dp))
-                    Text(text = "PUNTOS DE EXPERIENCIA", color = Color.White, fontSize = 20.sp)
+                    Text(text = "NIVEL ${userBeforeUpdate.getLevel()}", color = Color.White, fontSize = 20.sp)
                     Row(verticalAlignment = Alignment.CenterVertically){
-                        ExperienceBar(xp)
+                        ExperienceBar(userXpPercentage)
                         Spacer(modifier = Modifier.size(7.dp))
-                        Text(text = "$xp/$xpToNextLevel", color = Color.White, fontSize = 20.sp)
+                        Text(text = "${userBeforeUpdate.getXp()}/${userBeforeUpdate.getXpToNextLevel()}", color = Color.White, fontSize = 20.sp)
                     }
                     Spacer(modifier = Modifier.size(40.dp))
                     Text(text = "¿Quieres jugar de nuevo?", color = Color.White, fontSize = 20.sp)
@@ -217,17 +215,6 @@ fun BodyContent(
                 Text(text = "ERROR")
             }
         }
-    }
-}
-
-/** Iterate the progress value */
-suspend fun fillXpBar(beginXp: Int, endXp: Int, updateProgress: (Int) -> Unit) {
-    // we iterate from starting xp to ending xp
-
-    for (i in beginXp..endXp) {
-        println(i)
-        updateProgress(i)
-        delay(10)
     }
 }
 
@@ -320,12 +307,13 @@ fun ShowPreview(){
                 correctOption = "Iván Hernández",
                 incorrectOptions = arrayOf("Octavio Mayor", "Nelson Monzón", "José Juan Hernández")
             )
+            val user = User("PedroRS9", "", "", null, null, 1, 50)
             BodyContent(
                 navController = rememberNavController(),
-                user = User("PedroRS9", "", "", null, null, 1, 50),
+                user = user,
                 downloadQuestions = {},
                 onOptionClick = {},
-                testGameState = TestGameState.EndGame(5, 10, 35),
+                testGameState = TestGameState.EndGame(5, 10, 35, user),
                 mMediaPlayer = null
             )
         }
