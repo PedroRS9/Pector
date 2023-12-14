@@ -11,16 +11,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
 import es.ulpgc.pamn.pector.R
 import es.ulpgc.pamn.pector.data.FirebasePasapalabraQuestionsStackRepository
+import es.ulpgc.pamn.pector.data.FirebaseUserRepository
 import es.ulpgc.pamn.pector.navigation.AppNavigation
 import es.ulpgc.pamn.pector.navigation.AppScreens
 import java.text.Normalizer
 import es.ulpgc.pamn.pector.data.WordItem
 import es.ulpgc.pamn.pector.data.Result
 import es.ulpgc.pamn.pector.global.SharedRepositoryInstance
+import es.ulpgc.pamn.pector.global.UserGlobalConf
 
 class PasapalabraViewModel : ViewModel() {
 
     private val repository =  FirebasePasapalabraQuestionsStackRepository()
+    private val userRepository = FirebaseUserRepository()
+    private lateinit var userGlobalConf: UserGlobalConf
 
     private var _isLoading = MutableLiveData<Boolean>(true)
     val isLoading: LiveData<Boolean> = _isLoading
@@ -34,8 +38,8 @@ class PasapalabraViewModel : ViewModel() {
         "Con la ${roscoWords.value?.getOrNull(currentIndex.value)?.word?.first() ?: ""}: ${roscoWords.value?.getOrNull(currentIndex.value)?.description ?: ""}"
     }
 
-    private val _navigationEvent = MutableLiveData<NavigationEvent>()
-    val navigationEvent: LiveData<NavigationEvent> = _navigationEvent
+    private val _pasapalabraState = MutableLiveData<PasapalabraState>()
+    val pasapalabraState: LiveData<PasapalabraState> = _pasapalabraState
 
     private val totalTime = 30000L // Tiempo total en milisegundos
     val currentTime = mutableStateOf(totalTime / 1000) // Tiempo actual en segundos
@@ -49,6 +53,10 @@ class PasapalabraViewModel : ViewModel() {
 
     init {
         loadInitialData()
+    }
+
+    fun establishUser(userGlobalConf: UserGlobalConf){
+        this.userGlobalConf = userGlobalConf
     }
 
     fun playCorrectAnswerSound(context: Context) {
@@ -104,6 +112,7 @@ class PasapalabraViewModel : ViewModel() {
                 }
                 recognizedTextObserver = textObserver
                 SharedRepositoryInstance.repository.getRecognizedText().observeForever(textObserver)
+                _pasapalabraState.value = PasapalabraState.Playing
                 _isLoading.postValue(false)
             }
         }
@@ -137,10 +146,18 @@ class PasapalabraViewModel : ViewModel() {
         // Cálculo de puntos, asegurándose de que no sean negativos
         val rawPoints = correctAnswers * 10 - incorrectAnswers * 5
         val points = rawPoints.coerceAtLeast(0)
+        // we update the user
+        val userBeforeUpdate = userGlobalConf.currentUser.value!!.copy()
+        userGlobalConf.currentUser.value!!.addXp(points)
 
-        val route = AppScreens.PasapalabraEndScreen.createRoute(correctAnswers, incorrectAnswers, unanswered, points)
+        userRepository.updateUser(userGlobalConf.currentUser.value!!){result ->
+            if (result is Result.Error){
+                _pasapalabraState.value = PasapalabraState.EndGame(correctAnswers, incorrectAnswers, unanswered, points, userBeforeUpdate, result.exception)
+                return@updateUser
+            }
+        }
         SharedRepositoryInstance.repository.updateRecognizedText("")
-        _navigationEvent.value = NavigationEvent.Navigate(route)
+        _pasapalabraState.value = PasapalabraState.EndGame(correctAnswers, incorrectAnswers, unanswered, points, userBeforeUpdate)
     }
 
     override fun onCleared() {

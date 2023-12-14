@@ -9,7 +9,6 @@ import es.ulpgc.pamn.pector.global.UserGlobalConf
 import es.ulpgc.pamn.pector.screens.leaderboard.LeaderboardScreen
 import es.ulpgc.pamn.pector.screens.login.LoginScreen
 import es.ulpgc.pamn.pector.screens.mainmenu.MainMenuScreen
-import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraEndScreen
 import es.ulpgc.pamn.pector.screens.profile.ProfileScreen
 import es.ulpgc.pamn.pector.screens.signup.SignupScreen
 import es.ulpgc.pamn.pector.screens.pasapalabra.PasapalabraScreen
@@ -46,9 +45,6 @@ fun AppNavigation(onVoiceButtonClicked: () -> Unit, speakFunction: (String) -> U
         }
         composable(route = AppScreens.PasapalabraScreen.route){ backStackEntry ->
             PasapalabraScreen(navController, backStackEntry, userGlobalConf, onVoiceButtonClicked, speakFunction)
-        }
-        composable(route = AppScreens.PasapalabraEndScreen.route){ backStackEntry ->
-            PasapalabraEndScreen(navController, backStackEntry, userGlobalConf)
         }
         composable(route = AppScreens.SearchScreen.route){ backStackEntry ->
             SearchScreen(navController, backStackEntry)

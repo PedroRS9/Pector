@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -36,6 +37,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextButton
@@ -45,6 +47,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.nativeCanvas
@@ -54,13 +58,19 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import es.ulpgc.pamn.pector.components.ExperienceBar
 import es.ulpgc.pamn.pector.data.User
 import es.ulpgc.pamn.pector.data.WordItem
+import es.ulpgc.pamn.pector.extensions.fillXpBar
 import es.ulpgc.pamn.pector.extensions.pectorBackground
 import es.ulpgc.pamn.pector.global.UserGlobalConf
+import es.ulpgc.pamn.pector.navigation.AppScreens
+import es.ulpgc.pamn.pector.ui.theme.CornflowerBlue
+import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -73,6 +83,7 @@ fun PasapalabraScreen(
     onVoiceButtonClicked: () -> Unit,
     speakFunction: (String) -> Unit) {
     val viewModel: PasapalabraViewModel = viewModel()
+    viewModel.establishUser(userGlobalConf)
     val isLoading = viewModel.isLoading.observeAsState(initial = true)
     val showDialog = remember { mutableStateOf(false) }
     BackHandler {
@@ -126,159 +137,231 @@ fun BodyContent(
 
     // Observa el tiempo restante del cronómetro
     val currentTime = viewModel.currentTime.value
-    val navigationEvent by viewModel.navigationEvent.observeAsState()
+    val pasapalabraState by viewModel.pasapalabraState.observeAsState()
     val focusManager = LocalFocusManager.current
 
     val isVoiceEnabled by viewModel.isVoiceEnabled.observeAsState()
 
     val context = LocalContext.current
 
-    LaunchedEffect(navigationEvent, observerCurrentStatement, isVoiceEnabled) {
-        when (val event = navigationEvent) {
-            is NavigationEvent.Navigate -> {
-                speakFunction("")
-                navController.navigate(event.route)
-            }
-            else -> {
+    when(pasapalabraState){
+        is PasapalabraState.Playing -> {
+            LaunchedEffect(observerCurrentStatement, isVoiceEnabled){
                 if (isVoiceEnabled == true) {
                     speakFunction(observerCurrentStatement)
                 } else {
                     speakFunction("")
                 }
             }
-        }
-    }
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .pectorBackground()
-            .pointerInput(Unit){
-                detectTapGestures(onTap = {
-                    focusManager.clearFocus() // Clear focus when user taps outside of a TextField
-                })
-            }
-            .padding(horizontal = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
-        ) {
-
-            IconButton(
-                onClick = { viewModel.toggleVoice() }
-            ) {
-                Icon(
-                    imageVector = if (isVoiceEnabled!!) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
-                    contentDescription = if (isVoiceEnabled as Boolean) "Desactivar Audio" else "Activar Audio",
-                    tint = Color.White
-                )
-            }
-
-            Text(
-                text = "${currentTime}s",
-                style = TextStyle(
-                    color = Color.White,
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
-                ),
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-
-
-            IconButton(
-                onClick = { showDialog.value = true }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Close,
-                    contentDescription = "Salir",
-                    tint = Color.White
-                )
-            }
-        }
-
-
-        // Rosco circular con un peso para que ocupe la mayor parte de la pantalla
-        Box(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
-        ) {
-            RoscoCircular(
-                roscoItems = roscoItems,
-                wordStates = wordStates,
-                currentIndex = currentIndex
-            )
-        }
-
-        // Cuadro para la pista con bordes redondeados y color de fondo
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(), // Añade un poco de padding horizontal
-            color = Color(0xFFE1BEE7), // El color de fondo del cuadro de la pista, cambia al color morado que prefieras
-            shape = RoundedCornerShape(8.dp) // Redondea las esquinas
-        ) {
-            Text(
-                text = "Con la ${currentWordItem?.word?.first() ?: ""}: ${currentWordItem?.description ?: ""}",
-                modifier = Modifier, // Añade padding dentro del cuadro para el texto
-                style = TextStyle(
-                    color = Color.Black, // Cambia el color del texto si es necesario
-                    fontSize = 18.sp // Cambia el tamaño del texto si es necesario
-                )
-            )
-        }
-        // Cuadro de texto para la respuesta y botón de envío
-        Row(modifier = Modifier.padding(vertical = 8.dp)) {
-            OutlinedTextField(
-                value = viewModel.currentAnswer.value,
-                onValueChange = { viewModel.onAnswerChanged(it) },
-                label = { Text("Respuesta", color = Color.White) },
+            Column(
                 modifier = Modifier
-                    .weight(1f),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = Color.White,
-                    unfocusedBorderColor = Color.White,
-                    focusedLabelColor = Color.White,
-                    unfocusedLabelColor = Color.White,
-                )
-            )
+                    .fillMaxSize()
+                    .pectorBackground()
+                    .pointerInput(Unit) {
+                        detectTapGestures(onTap = {
+                            focusManager.clearFocus() // Clear focus when user taps outside of a TextField
+                        })
+                    }
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.Top
+                ) {
 
-            IconButton(onClick = { onVoiceButtonClicked() }) {
-                Icon(Icons.Filled.Mic, "mic", tint = Color.White)
+                    IconButton(
+                        onClick = { viewModel.toggleVoice() }
+                    ) {
+                        Icon(
+                            imageVector = if (isVoiceEnabled!!) Icons.Default.VolumeUp else Icons.Default.VolumeOff,
+                            contentDescription = if (isVoiceEnabled as Boolean) "Desactivar Audio" else "Activar Audio",
+                            tint = Color.White
+                        )
+                    }
+
+                    Text(
+                        text = "${currentTime}s",
+                        style = TextStyle(
+                            color = Color.White,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        ),
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+
+
+                    IconButton(
+                        onClick = { showDialog.value = true }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Salir",
+                            tint = Color.White
+                        )
+                    }
+                }
+
+
+                // Rosco circular con un peso para que ocupe la mayor parte de la pantalla
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                ) {
+                    RoscoCircular(
+                        roscoItems = roscoItems,
+                        wordStates = wordStates,
+                        currentIndex = currentIndex
+                    )
+                }
+
+                // Cuadro para la pista con bordes redondeados y color de fondo
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth(), // Añade un poco de padding horizontal
+                    color = Color(0xFFE1BEE7), // El color de fondo del cuadro de la pista, cambia al color morado que prefieras
+                    shape = RoundedCornerShape(8.dp) // Redondea las esquinas
+                ) {
+                    Text(
+                        text = "Con la ${currentWordItem?.word?.first() ?: ""}: ${currentWordItem?.description ?: ""}",
+                        modifier = Modifier, // Añade padding dentro del cuadro para el texto
+                        style = TextStyle(
+                            color = Color.Black, // Cambia el color del texto si es necesario
+                            fontSize = 18.sp // Cambia el tamaño del texto si es necesario
+                        )
+                    )
+                }
+                // Cuadro de texto para la respuesta y botón de envío
+                Row(modifier = Modifier.padding(vertical = 8.dp)) {
+                    OutlinedTextField(
+                        value = viewModel.currentAnswer.value,
+                        onValueChange = { viewModel.onAnswerChanged(it) },
+                        label = { Text("Respuesta", color = Color.White) },
+                        modifier = Modifier
+                            .weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = Color.White,
+                            unfocusedBorderColor = Color.White,
+                            focusedLabelColor = Color.White,
+                            unfocusedLabelColor = Color.White,
+                        )
+                    )
+
+                    IconButton(onClick = { onVoiceButtonClicked() }) {
+                        Icon(Icons.Filled.Mic, "mic", tint = Color.White)
+                    }
+                }
+
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    // Botón "Pasapalabra"
+                    Button(
+                        onClick = { viewModel.onPasapalabra() },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
+                        modifier = Modifier
+                            .weight(1f) // Usa weight para distribuir el espacio disponible equitativamente
+                            .padding(horizontal = 8.dp) // Agrega espacio alrededor del botón
+                    ) {
+                        Text("Pasapalabra", color = Color.Black)
+                    }
+
+                    // Botón "Enviar respuesta"
+                    Button(
+                        onClick = { viewModel.onSubmitAnswer(context) },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                        modifier = Modifier
+                            .weight(1f) // Usa weight para distribuir el espacio disponible equitativamente
+                            .padding(horizontal = 8.dp) // Agrega espacio alrededor del botón
+                    ) {
+                        Text("Responder", color = Color.White)
+                    }
+                }
             }
         }
+        is PasapalabraState.EndGame -> {
+            val correctAnswers = (pasapalabraState as PasapalabraState.EndGame).correctAnswers
+            val incorrectAnswers = (pasapalabraState as PasapalabraState.EndGame).incorrectAnswers
+            val unanswered = (pasapalabraState as PasapalabraState.EndGame).unanswered
+            val points = (pasapalabraState as PasapalabraState.EndGame).points
+            var userBeforeUpdate by remember { mutableStateOf((pasapalabraState as PasapalabraState.EndGame).userBeforeUpdate) }
+            var userXpPercentage by remember { mutableStateOf(userBeforeUpdate.calculateXpPercentage()) }
+            val currentXp = userBeforeUpdate.getXp()
+            val scope = rememberCoroutineScope() // Create a coroutine scope
 
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center
-        ) {
-            // Botón "Pasapalabra"
-            Button(
-                onClick = { viewModel.onPasapalabra() },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFFFC107)),
-                modifier = Modifier
-                    .weight(1f) // Usa weight para distribuir el espacio disponible equitativamente
-                    .padding(horizontal = 8.dp) // Agrega espacio alrededor del botón
-            ) {
-                Text("Pasapalabra", color = Color.Black)
+            LaunchedEffect(Unit){
+                scope.launch {
+                    fillXpBar(beginXp = currentXp, endXp = (currentXp + points)) { progress ->
+                        if(progress != currentXp) userBeforeUpdate.addXp(1)
+                        userXpPercentage = userBeforeUpdate.calculateXpPercentage()
+                    }
+                }
             }
 
-            // Botón "Enviar respuesta"
-            Button(
-                onClick = { viewModel.onSubmitAnswer(context) },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+            Column(
                 modifier = Modifier
-                    .weight(1f) // Usa weight para distribuir el espacio disponible equitativamente
-                    .padding(horizontal = 8.dp) // Agrega espacio alrededor del botón
-            ) {
-                Text("Responder", color = Color.White)
+                    .fillMaxSize()
+                    .pectorBackground()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ){
+                Text(text = "RESULTADOS", color = Color.White, fontSize = 40.sp, modifier = Modifier.padding(20.dp))
+                Spacer(modifier = Modifier.size(30.dp))
+                // PUNTOS GANADOS
+                Text(text = "PREGUNTAS CORRECTAS: $correctAnswers", color = Color.White, fontSize = 20.sp)
+                Text(text = "PREGUNTAS INCORRECTAS: $incorrectAnswers", color = Color.White, fontSize = 20.sp)
+                Text(text = "PREGUNTAS SIN RESPONDER: $unanswered", color = Color.White, fontSize = 20.sp)
+                Text(text = "PUNTOS GANADOS: $points", color = Color.White, fontSize = 20.sp)
+                Spacer(modifier = Modifier.size(40.dp))
+                Spacer(modifier = Modifier.height(20.dp))
+                Text(text = "NIVEL ${userBeforeUpdate.getLevel()}", color = Color.White, fontSize = 20.sp)
+                Row(verticalAlignment = Alignment.CenterVertically){
+                    ExperienceBar(userXpPercentage)
+                    Spacer(modifier = Modifier.size(7.dp))
+                    Text(text = "${userBeforeUpdate.getXp()}/${userBeforeUpdate.getXpToNextLevel()}", color = Color.White, fontSize = 20.sp)
+                }
+                Text(text = "¿Quieres jugar de nuevo?", color = Color.White, fontSize = 20.sp)
+                Button(
+                    onClick = { navController.navigate(AppScreens.PasapalabraScreen.route) },
+                    colors = ButtonDefaults.buttonColors(CornflowerBlue),
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(130.dp, 50.dp)
+                ) {
+                    Text(
+                        text = "JUGAR",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                }
+                // volver al menú principal
+                Button(
+                    onClick = { navController.navigate(AppScreens.MainMenuScreen.route) },
+                    colors = ButtonDefaults.buttonColors(CornflowerBlue),
+                    modifier = Modifier
+                        .padding(10.dp)
+                        .size(300.dp, 50.dp)
+                ) {
+                    Text(
+                        text = "Volver al menú principal",
+                        color = Color.White,
+                        fontSize = 20.sp,
+                        textAlign = TextAlign.Center,
+                        fontWeight = FontWeight.Bold,
+                        letterSpacing = 0.5.sp
+                    )
+                }
             }
         }
-
+        else -> {}
     }
 }
 
