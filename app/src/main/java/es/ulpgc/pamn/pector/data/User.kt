@@ -1,5 +1,13 @@
 package es.ulpgc.pamn.pector.data
 
+import android.content.res.Resources
+import android.graphics.Bitmap
+import androidx.core.content.res.ResourcesCompat
+import androidx.core.graphics.drawable.toBitmap
+import coil.compose.AsyncImagePainter
+import es.ulpgc.pamn.pector.R
+import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import kotlin.math.pow
 
 class User(
@@ -7,6 +15,8 @@ class User(
     private val password: String,
     private val email: String,
     private var pictureURL: String? = null,
+    // we show the default picture R.drawable.default_profile_pic if the user has not uploaded one
+    private var picture: ByteArray? = null,
     private var level: Int = 1,
     private var xp: Int = 0
 ) {
@@ -17,11 +27,19 @@ class User(
     fun setPictureURL(pictureURL: String) {
         this.pictureURL = pictureURL
     }
+    fun getPicture(): ByteArray? = picture
+    fun setPicture(picture: ByteArray) {
+        this.picture = picture
+    }
     fun getLevel() = level
     fun getXp() = xp
 
     fun getXpToNextLevel(): Int{
         return (level / 0.1).pow(2.0).toInt()
+    }
+
+    fun hasProfilePicture(): Boolean{
+        return picture != null
     }
 
 

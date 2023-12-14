@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 //initializing the data class with default parameters
 sealed class BottomNavItem(val route: String, val icon: ImageVector, val label: String) {
     object Home : BottomNavItem(AppScreens.MainMenuScreen.route, Icons.Default.Home, "Home")
-    object Search : BottomNavItem("", Icons.Default.Search, "Search")
+    object Search : BottomNavItem(AppScreens.SearchScreen.route, Icons.Default.Search, "Search")
     object Profile : BottomNavItem(AppScreens.ProfileScreen.route, Icons.Default.Person, "Profile")
 }
 

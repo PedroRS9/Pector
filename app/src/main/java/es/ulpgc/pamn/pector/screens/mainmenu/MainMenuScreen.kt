@@ -58,7 +58,10 @@ import es.ulpgc.pamn.pector.ui.theme.PectorTheme
 @Composable
 fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEntry, userGlobalConf: UserGlobalConf) {
     val user by userGlobalConf.currentUser.observeAsState()
-    val viewModel: MainMenuViewModel = viewModel(backStackEntry)
+    val viewModel = MainMenuViewModel(userGlobalConf)
+    LaunchedEffect(Unit){
+        viewModel.checkIfPictureIsDownloaded()
+    }
     val imageState by viewModel.imageState.observeAsState()
     val showDialog = remember { mutableStateOf(false) }
     BackHandler {
@@ -75,7 +78,6 @@ fun MainMenuScreen(navController: NavController, backStackEntry: NavBackStackEnt
         BodyContent(
             navController = navController,
             user = user,
-            loadImage = { user?.let { viewModel.onLoad(it) } },
             imageState = imageState
         )
     }
@@ -94,9 +96,6 @@ fun BodyContent(
     }
     val showDialog = remember { mutableStateOf(false) }
     val errorMessage by remember { mutableStateOf("") }
-    LaunchedEffect(Unit) {
-        loadImage()
-    }
 
     Column(
         modifier = Modifier
