@@ -15,4 +15,5 @@ sealed class AppScreens(val route: String){
             return "pasapalabra_end_screen/$correctAnswers/$incorrectAnswers/$unanswered/$points"
         }
     }
+    object SearchScreen : AppScreens("search_screen")
 }

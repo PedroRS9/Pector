@@ -2,9 +2,6 @@ package es.ulpgc.pamn.pector.data
 
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthException
-import com.google.firebase.auth.FirebaseUser
-import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.firestore
 
 class FirebaseUserRepository : UserRepository {
@@ -106,6 +103,25 @@ class FirebaseUserRepository : UserRepository {
         }
     }
 
+
+
+    override fun searchUsers(query: String, callback: (SearchResult) -> Unit) {
+        database.collection("users").whereGreaterThanOrEqualTo("username", query).whereLessThanOrEqualTo("username", query + "\uf8ff").get().addOnSuccessListener { documents ->
+            val users = documents.map { document ->
+                User(
+                    name = document.getString("username") ?: "",
+                    password = "", // we don't store passwords in firestore
+                    email = document.getString("email") ?: "",
+                    pictureURL = document.getString("pictureURL"),
+                    level = document.getLong("level")?.toInt() ?: 1,
+                    xp = document.getLong("xp")?.toInt() ?: 0
+                )
+            }
+            callback(SearchResult.ShowResults(users))
+        }.addOnFailureListener {
+            callback(SearchResult.ShowError(it))
+        }
+    }
 
 
 }
