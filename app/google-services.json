@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "211272233897",
+    "project_id": "pector-68aa6",
+    "storage_bucket": "pector-68aa6.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:211272233897:android:846df4caa308150418cab8",
+        "android_client_info": {
+          "package_name": "es.ulpgc.pamn.pector"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCimFpy6-6wu-f6J899UrCzTcd0vIBUpdY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
